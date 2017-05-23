@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="options.css">
+    </head>
+
+    <body>
+        <form>
+            <ul>
+            <li>
+                <div>
+                    Tab Count Scope<br>
+                    <label>
+                        <input type="radio" name="scope" value="window" id="scope_window">
+                        Per Window
+                    </label></br>
+                    <label>
+                        <input type="radio" name="scope" value="global" id="scope_global">
+                        Global
+                    </label><br>
+                </div>
+            </li>
+
+            <li>
+                <div>
+                    Display Mode<br>
+                    <label>
+                        <input type="radio" name="displayMode" value="badge" id="dm_badge">
+                        Badge
+                    </label><br>
+                    <label>
+                        <input type="radio" name="displayMode" value="icon" id="dm_icon">
+                        Icon
+                    </label><br>
+                </div>
+            </li>
+
+            <li>
+                <div>
+                <label>
+                    Badge Background Color<br>
+                    <input type="color" id="badgeBg" disabled="">
+                </label>
+            </div>
+            </li>
+
+            <li>
+                <div>
+                <label>
+                    Icon Dimension (n<i>x</i>n px)<br>
+                    <input type="number" id="iconDimension" step="8" min="8" disabled="">
+                </label>
+            </div>
+            </li>
+
+            <li>
+                <div>
+                <label>
+                    Icon Font (<a   href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font">CanvasRenderingContext2D.font</a> after size value)<br>
+                    <input type="text" id="iconFont" disabled>
+                </label>
+            </div>
+            </li>
+
+            <li>
+                <div>
+                <label>
+                    Icon Color<br>
+                    <input type="color" id="iconColor" disabled>
+                </label>
+            </div>
+            </li>
+            </ul>
+
+            <div>
+                Extension will be reloaded on submit.<br>
+                Reopen options if page broken.<br>
+                <button type="submit">Save</button>
+            </div>
+        </form>
+        <script src="getOptions.js"></script>
+        <script src="options.js"></script>
+    </body>
+</html>
