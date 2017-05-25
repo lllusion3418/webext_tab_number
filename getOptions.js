@@ -5,7 +5,7 @@ const defaultOptions = {
     "displayMode": "icon", // "icon" | "badge"
 
     // if displayMode == "badge"
-    "badgeBg": "#808080",
+    "badgeBg": "#212121",
 
     // if displayMode == "icon"
     "iconDimension": 128,
