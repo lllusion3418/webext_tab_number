@@ -1,44 +1,45 @@
 'use strict';
 
-function restoreOptions() {
-    getOptions().then(
-        opt => {
-            switch (opt.scope) {
-            case "window":
-                document.getElementById("scope_window").checked = true;
-                break;
-            case "global":
-                document.getElementById("scope_global").checked = true;
-                break;
-            default:
-                console.log("invalid scope");
-            }
+function restoreOptions(opt) {
+    console.log(opt);
+    switch (opt.scope) {
+    case "window":
+        document.getElementById("scope_window").checked = true;
+        break;
+    case "global":
+        document.getElementById("scope_global").checked = true;
+        break;
+    default:
+        console.log("invalid scope");
+    }
 
-            switch (opt.displayMode) {
-            case "icon":
-                document.getElementById("dm_icon").checked = true;
-                break;
-            case "badge":
-                document.getElementById("dm_badge").checked = true;
-                break;
-            default:
-                console.log("invalid displayMode");
-            }
+    switch (opt.displayMode) {
+    case "icon":
+        document.getElementById("dm_icon").checked = true;
+        break;
+    case "badge":
+        document.getElementById("dm_badge").checked = true;
+        break;
+    default:
+        console.log("invalid displayMode");
+    }
 
-            document.getElementById("badgeBg").value = opt.badgeBg;
+    document.getElementById("badgeBg").value = opt.badgeBg;
 
-            document.getElementById("iconDimension").value = opt.iconDimension;
+    document.getElementById("iconDimension").value = opt.iconDimension;
 
-            document.getElementById("iconFont").value = opt.iconFont;
+    document.getElementById("iconFont").value = opt.iconFont;
 
-            document.getElementById("iconColor").value = opt.iconColor;
+    document.getElementById("iconColor").value = opt.iconColor;
 
-            ["dm_icon", "dm_badge"].forEach(i => {
-                document.getElementById(i).addEventListener("change", updateDisabled);
-            });
-            updateDisabled();
-        }
-    );
+    ["dm_icon", "dm_badge"].forEach(i => {
+        document.getElementById(i).addEventListener("change", updateDisabled);
+    });
+    updateDisabled();
+}
+
+function restoreSavedOptions() {
+    browser.storage.local.get(defaultOptions).then(restoreOptions);
 }
 
 function updateDisabled() {
@@ -86,5 +87,5 @@ function saveOptions(e) {
     browser.runtime.reload();
 }
 
-document.addEventListener("DOMContentLoaded", restoreOptions);
+document.addEventListener("DOMContentLoaded", restoreSavedOptions);
 document.querySelector("form").addEventListener("submit", saveOptions);
