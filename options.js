@@ -1,7 +1,6 @@
 'use strict';
 
 function restoreOptions(opt) {
-    console.log(opt);
     switch (opt.scope) {
     case "window":
         document.getElementById("scope_window").checked = true;
