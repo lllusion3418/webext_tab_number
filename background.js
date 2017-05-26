@@ -1,4 +1,5 @@
-'use strict';
+/* globals getOptions */
+"use strict";
 function main(options) {
     var setText;
 
@@ -8,7 +9,7 @@ function main(options) {
         }).then(
             tabs => setText(null, tabs.length.toString()),
             onError
-        )
+        );
     }
 
     function updateActives() {
@@ -17,7 +18,7 @@ function main(options) {
         }).then(
             tabs => tabs.forEach(i => updateActive(i.windowId)),
             onError
-        )
+        );
     }
 
     function updateActive(windowId) {
@@ -30,7 +31,7 @@ function main(options) {
                 setText(active.id, tabs.length.toString());
             },
             onError
-        )
+        );
     }
 
     function updateBadge(tabId, windowId) {
@@ -60,28 +61,28 @@ function main(options) {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = options.iconColor;
-        ctx.fillText(text, options.iconDimension/2, options.iconDimension/2, options.iconDimension);
+        ctx.fillText(text, options.iconDimension / 2, options.iconDimension / 2, options.iconDimension);
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
         browser.browserAction.setIcon({
             imageData: data,
             tabId: tabId
-        })
+        });
     }
 
-    if (options.displayMode == "badge") {
+    if (options.displayMode === "badge") {
         setText = setTextBadge;
         browser.browserAction.setBadgeBackgroundColor({color:options.badgeBg});
-    } else if (options.displayMode == "icon") {
+    } else if (options.displayMode === "icon") {
         setText = setTextIcon;
         /* completely transparent image looks better than the default icon flashing
         * for < 1s when switching to previously unset tab
         */
         browser.browserAction.setIcon({
             imageData: new ImageData(options.iconDimension, options.iconDimension)
-        })
+        });
     }
 
-    if (options.scope == "window") {
+    if (options.scope === "window") {
         browser.tabs.onActivated.addListener(activeInfo => updateBadge(activeInfo.tabId, activeInfo.windowId));
         browser.tabs.onRemoved.addListener((_, removeInfo) => updateActive(removeInfo.windowId));
         browser.tabs.onDetached.addListener((_, detachInfo) => updateActive(detachInfo.oldWindowId));
@@ -89,7 +90,7 @@ function main(options) {
         browser.tabs.onAttached.addListener((_, attachInfo) => updateActive(attachInfo.newWindowId));
 
         updateActives();
-    } else if (options.scope == "global") {
+    } else if (options.scope === "global") {
         [browser.tabs.onRemoved, browser.tabs.onCreated].forEach(
             i => i.addListener(updateGlobal)
         );
@@ -102,7 +103,7 @@ function main(options) {
 }
 
 function onError(error) {
-    console.log(`Error: ${error}`)
+    console.log(`Error: ${error}`);
 }
 
 getOptions().then(
