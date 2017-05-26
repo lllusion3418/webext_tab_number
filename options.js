@@ -1,4 +1,5 @@
-'use strict';
+/* globals defaultOptions, getOptions */
+"use strict";
 
 function restoreOptions(opt) {
     switch (opt.scope) {
@@ -38,12 +39,12 @@ function restoreOptions(opt) {
 }
 
 function restoreSavedOptions() {
-    browser.storage.local.get(defaultOptions).then(restoreOptions);
+    getOptions.then(restoreOptions);
 }
 
 function updateDisabled() {
-    dm_icon = document.getElementById("dm_icon").checked;
-    dm_badge = document.getElementById("dm_badge").checked;
+    const dm_icon = document.getElementById("dm_icon").checked;
+    const dm_badge = document.getElementById("dm_badge").checked;
 
     document.getElementById("badgeBg").disabled = !dm_badge;
 
@@ -68,7 +69,7 @@ function saveOptions(e) {
     if (document.getElementById("dm_icon").checked) {
         displayMode = "icon";
     } else if (document.getElementById("dm_badge").checked) {
-        displayMode = "badge"
+        displayMode = "badge";
     } else {
         console.log("no displayMode selected");
         return;
@@ -85,8 +86,8 @@ function saveOptions(e) {
 
     let changed = Object();
     for (let i in entered) {
-        if (entered[i] == defaultOptions[i]) {
-            browser.storage.local.remove(i)
+        if (entered[i] === defaultOptions[i]) {
+            browser.storage.local.remove(i);
         } else {
             changed[i] = entered[i];
         }

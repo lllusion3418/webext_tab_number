@@ -1,6 +1,8 @@
-'use strict';
+/* global defaultOptions, getOptions */
+/* exported defaultOptions, getOptions */
+"use strict";
 
-const defaultOptions = {
+var defaultOptions = {
     "scope": "window", // "global" | "window"
     "displayMode": "icon", // "icon" | "badge"
 
