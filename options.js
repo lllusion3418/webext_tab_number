@@ -74,14 +74,24 @@ function saveOptions(e) {
         return;
     }
 
-    browser.storage.local.set({
+    const entered = {
         "scope": scope,
         "displayMode": displayMode,
         "badgeBg": document.getElementById("badgeBg").value,
         "iconDimension": document.getElementById("iconDimension").value,
         "iconFont": document.getElementById("iconFont").value,
         "iconColor": document.getElementById("iconColor").value
-    });
+    };
+
+    let changed = Object();
+    for (let i in entered) {
+        if (entered[i] == defaultOptions[i]) {
+            browser.storage.local.remove(i)
+        } else {
+            changed[i] = entered[i];
+        }
+    }
+    browser.storage.local.set(changed);
 
     browser.runtime.reload();
 }
