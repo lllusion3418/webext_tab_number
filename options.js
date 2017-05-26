@@ -39,7 +39,7 @@ function restoreOptions(opt) {
 }
 
 function restoreSavedOptions() {
-    getOptions.then(restoreOptions);
+    getOptions().then(restoreOptions);
 }
 
 function updateDisabled() {
