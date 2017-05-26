@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Tab Number",
-    "version": "0.4",
+    "version": "0.4.1",
     "description": "tab number",
     "icons": {
         "48": "icons/tab_number-48.png"
