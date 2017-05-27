@@ -8,7 +8,7 @@
         "storage"
     ],
     "browser_action": {
-        "default_icon": "icons/tab_number-48.png"
+        "default_icon": "icons/ic_tab_black_24px.svg"
     },
     "background": {
         "scripts": ["getOptions.js", "background.js"]
