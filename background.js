@@ -57,11 +57,16 @@ function main(options) {
         c.width = options.iconDimension;
         c.height = options.iconDimension;
         const ctx = c.getContext("2d");
-        ctx.font = `${options.iconDimension}px ${options.iconFont}`;
+        /* https://developer.mozilla.org/en-US/docs/Web/CSS/font-size?v=control#Ems
+         * such that text, which only consists of digits, fills the whole
+         * height of options.iconDimension px
+         */
+        const fontSize = options.iconDimension / (12 / 16);
+        ctx.font = `${fontSize}px ${options.iconFont}`;
         ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        ctx.textBaseline = "alphabetic";
         ctx.fillStyle = options.iconColor;
-        ctx.fillText(text, options.iconDimension / 2, options.iconDimension / 2, options.iconDimension);
+        ctx.fillText(text, options.iconDimension / 2, options.iconDimension, options.iconDimension);
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
         browser.browserAction.setIcon({
             imageData: data,
