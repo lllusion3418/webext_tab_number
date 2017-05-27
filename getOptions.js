@@ -10,7 +10,7 @@ var defaultOptions = {
     "badgeBg": "#212121",
 
     // if displayMode == "icon"
-    "iconDimension": 128,
+    "iconDimension": 64,
     "iconFont": "sans-serif",
     "iconColor": "#000000"
 };
