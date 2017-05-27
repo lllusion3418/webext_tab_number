@@ -80,6 +80,9 @@ function main(options) {
         browser.browserAction.setIcon({
             imageData: new ImageData(options.iconDimension, options.iconDimension)
         });
+    } else {
+        onError("invalid displayMode");
+        return;
     }
 
     if (options.scope === "window") {
@@ -98,6 +101,7 @@ function main(options) {
         updateGlobal();
     } else {
         onError("scope must be either 'window' or 'global'");
+        return;
     }
 
 }
