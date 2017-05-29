@@ -11,7 +11,7 @@
         "default_icon": "icons/ic_tab_black_24px.svg"
     },
     "background": {
-        "scripts": ["getOptions.js", "background.js"]
+        "scripts": ["shared.js", "background.js"]
     },
     "options_ui": {
         "page": "options.html",
