@@ -52,7 +52,7 @@ module.exports = {
             "error"
         ],
         "no-console": [
-            "off"
+            "error"
         ],
     }
 };

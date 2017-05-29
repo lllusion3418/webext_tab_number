@@ -1,4 +1,4 @@
-/* globals defaultOptions, getOptions */
+/* globals defaultOptions, getOptions, onError */
 "use strict";
 
 function restoreOptions(opt) {
@@ -10,7 +10,7 @@ function restoreOptions(opt) {
         document.getElementById("scope_global").checked = true;
         break;
     default:
-        console.log("invalid scope");
+        onError("invalid scope");
     }
 
     switch (opt.displayMode) {
@@ -21,7 +21,7 @@ function restoreOptions(opt) {
         document.getElementById("dm_badge").checked = true;
         break;
     default:
-        console.log("invalid displayMode");
+        onError("invalid displayMode");
     }
 
     document.getElementById("badgeBg").value = opt.badgeBg;
@@ -61,7 +61,7 @@ function saveOptions(e) {
     } else if (document.getElementById("scope_global").checked) {
         scope = "global";
     } else {
-        console.log("no scope selected");
+        onError("no scope selected");
         return;
     }
 
@@ -71,7 +71,7 @@ function saveOptions(e) {
     } else if (document.getElementById("dm_badge").checked) {
         displayMode = "badge";
     } else {
-        console.log("no displayMode selected");
+        onError("no displayMode selected");
         return;
     }
 

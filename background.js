@@ -1,4 +1,4 @@
-/* globals getOptions */
+/* globals getOptions, onError */
 "use strict";
 function main(options) {
     var setText;
@@ -109,10 +109,6 @@ function main(options) {
         return;
     }
 
-}
-
-function onError(error) {
-    console.log(`Error: ${error}`);
 }
 
 getOptions().then(

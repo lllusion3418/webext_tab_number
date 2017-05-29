@@ -1,5 +1,5 @@
-/* global defaultOptions, getOptions */
-/* exported defaultOptions, getOptions */
+/* global defaultOptions, getOptions, onError */
+/* exported defaultOptions, getOptions, onError */
 "use strict";
 
 var defaultOptions = {
@@ -18,3 +18,14 @@ var defaultOptions = {
 function getOptions() {
     return browser.storage.local.get(defaultOptions);
 }
+
+var debugging = false;
+
+function onError(error) {
+    if (debugging) {
+        /* eslint no-console: ["off"] */
+        console.log(`Error: ${error}`);
+    }
+}
+
+onError("foobar");
