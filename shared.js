@@ -19,7 +19,7 @@ function getOptions() {
     return browser.storage.local.get(defaultOptions);
 }
 
-var debugging = true;
+var debugging = false;
 
 function onError(error) {
     if (debugging) {
