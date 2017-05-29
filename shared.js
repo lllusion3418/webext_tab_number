@@ -27,5 +27,3 @@ function onError(error) {
         console.log(`Error: ${error}`);
     }
 }
-
-onError("foobar");
