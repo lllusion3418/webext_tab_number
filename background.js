@@ -105,7 +105,7 @@ function main(options) {
 
         updateGlobal();
     } else {
-        onError("scope must be either 'window' or 'global'");
+        onError("invalid scope");
         return;
     }
 
