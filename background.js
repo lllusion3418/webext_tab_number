@@ -57,9 +57,11 @@ function main(options) {
         c.width = options.iconDimension;
         c.height = options.iconDimension;
         const ctx = c.getContext("2d");
-        /* https://developer.mozilla.org/en-US/docs/Web/CSS/font-size?v=control#Ems
+        /* https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
          * such that text, which only consists of digits, fills the whole
          * height of options.iconDimension px
+         * (approximately options.iconDimension pt)
+         * apparently virtually impossible to calculate ascender height
          */
         ctx.font = `${options.iconDimension}pt ${options.iconFont}`;
         ctx.textAlign = "center";
