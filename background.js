@@ -61,8 +61,7 @@ function main(options) {
          * such that text, which only consists of digits, fills the whole
          * height of options.iconDimension px
          */
-        const fontSize = options.iconDimension / (12 / 16);
-        ctx.font = `${fontSize}px ${options.iconFont}`;
+        ctx.font = `${options.iconDimension}pt ${options.iconFont}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
         ctx.fillStyle = options.iconColor;
