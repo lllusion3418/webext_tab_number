@@ -13,7 +13,7 @@ var defaultOptions = {
     "iconDimension": 64, // refer https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/browser_action#Choosing_icon_sizes
     "iconFont": "sans-serif",
     "iconColor": "#000000",
-    "iconFontMultiplier": 0.8
+    "iconFontMultiplier": 0.8,
 };
 
 function getOptions() {

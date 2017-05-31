@@ -85,7 +85,7 @@ function saveOptions(e) {
         "iconDimension": document.getElementById("iconDimension").value,
         "iconFont": document.getElementById("iconFont").value,
         "iconColor": document.getElementById("iconColor").value,
-        "iconFontMultiplier": parseFloat(document.getElementById("iconFontMultiplier").value)
+        "iconFontMultiplier": parseFloat(document.getElementById("iconFontMultiplier").value),
     };
 
     let changed = Object();
