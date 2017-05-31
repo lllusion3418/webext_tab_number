@@ -87,8 +87,8 @@ function main(options) {
     } else if (options.displayMode === "icon") {
         setText = setTextIcon;
         /* completely transparent image looks better than the default icon flashing
-        * for < 1s when switching to previously unset tab
-        */
+         * for < 1s when switching to previously unset tab
+         */
         browser.browserAction.setIcon({
             imageData: new ImageData(options.iconDimension, options.iconDimension)
         });
