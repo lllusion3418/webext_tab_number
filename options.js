@@ -82,7 +82,7 @@ function saveOptions(e) {
         "scope": scope,
         "displayMode": displayMode,
         "badgeBg": document.getElementById("badgeBg").value,
-        "iconDimension": document.getElementById("iconDimension").value,
+        "iconDimension": parseInt(document.getElementById("iconDimension").value, 10),
         "iconFont": document.getElementById("iconFont").value,
         "iconColor": document.getElementById("iconColor").value,
         "iconFontMultiplier": parseFloat(document.getElementById("iconFontMultiplier").value),
