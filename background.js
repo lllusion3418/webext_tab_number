@@ -63,11 +63,17 @@ function main(options) {
          * (approximately options.iconDimension pt)
          * apparently virtually impossible to calculate ascender height
          */
-        ctx.font = `${options.iconDimension}pt ${options.iconFont}`;
+        const fontSize = options.iconDimension * options.iconFontMultiplier;
+        ctx.font = `${fontSize}pt ${options.iconFont}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
         ctx.fillStyle = options.iconColor;
-        ctx.fillText(text, options.iconDimension / 2, options.iconDimension, options.iconDimension);
+        ctx.fillText(
+            text,
+            options.iconDimension / 2,
+            options.iconDimension * (1 + options.iconFontMultiplier) / 2,
+            options.iconDimension
+        );
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
         browser.browserAction.setIcon({
             imageData: data,

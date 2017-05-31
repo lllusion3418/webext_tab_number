@@ -32,6 +32,8 @@ function restoreOptions(opt) {
 
     document.getElementById("iconColor").value = opt.iconColor;
 
+    document.getElementById("iconFontMultiplier").value = opt.iconFontMultiplier;
+
     ["dm_icon", "dm_badge"].forEach(i => {
         document.getElementById(i).addEventListener("change", updateDisabled);
     });
@@ -51,6 +53,7 @@ function updateDisabled() {
     document.getElementById("iconDimension").disabled = !dm_icon;
     document.getElementById("iconFont").disabled = !dm_icon;
     document.getElementById("iconColor").disabled = !dm_icon;
+    document.getElementById("iconFontMultiplier").disabled = !dm_icon;
 }
 
 function saveOptions(e) {
@@ -81,7 +84,8 @@ function saveOptions(e) {
         "badgeBg": document.getElementById("badgeBg").value,
         "iconDimension": document.getElementById("iconDimension").value,
         "iconFont": document.getElementById("iconFont").value,
-        "iconColor": document.getElementById("iconColor").value
+        "iconColor": document.getElementById("iconColor").value,
+        "iconFontMultiplier": parseFloat(document.getElementById("iconFontMultiplier").value)
     };
 
     let changed = Object();
