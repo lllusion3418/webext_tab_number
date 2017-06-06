@@ -57,16 +57,23 @@ function main(options) {
         c.width = options.iconDimension;
         c.height = options.iconDimension;
         const ctx = c.getContext("2d");
-        /* https://developer.mozilla.org/en-US/docs/Web/CSS/font-size?v=control#Ems
+        /* https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
          * such that text, which only consists of digits, fills the whole
          * height of options.iconDimension px
+         * (approximately options.iconDimension pt)
+         * apparently virtually impossible to calculate ascender height
          */
-        const fontSize = options.iconDimension / (12 / 16);
-        ctx.font = `${fontSize}px ${options.iconFont}`;
+        const fontSize = options.iconDimension * options.iconFontMultiplier;
+        ctx.font = `${fontSize}pt ${options.iconFont}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
         ctx.fillStyle = options.iconColor;
-        ctx.fillText(text, options.iconDimension / 2, options.iconDimension, options.iconDimension);
+        ctx.fillText(
+            text,
+            options.iconDimension / 2,
+            options.iconDimension * (1 + options.iconFontMultiplier) / 2,
+            options.iconDimension
+        );
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
         browser.browserAction.setIcon({
             imageData: data,
@@ -80,8 +87,8 @@ function main(options) {
     } else if (options.displayMode === "icon") {
         setText = setTextIcon;
         /* completely transparent image looks better than the default icon flashing
-        * for < 1s when switching to previously unset tab
-        */
+         * for < 1s when switching to previously unset tab
+         */
         browser.browserAction.setIcon({
             imageData: new ImageData(options.iconDimension, options.iconDimension)
         });

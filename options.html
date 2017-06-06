@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="options.css">
-    </head>
 
-    <body>
-        <form>
-            <ul>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="options.css">
+</head>
+
+<body>
+    <form>
+        <ul>
             <li>
                 <div>
                     Tab Count Scope<br>
@@ -39,48 +40,58 @@
 
             <li>
                 <div>
-                <label>
-                    Badge Background Color<br>
-                    <input type="color" id="badgeBg" disabled="">
-                </label>
-            </div>
+                    <label>
+                        Badge Background Color<br>
+                        <input type="color" id="badgeBg" disabled>
+                    </label>
+                </div>
             </li>
 
             <li>
                 <div>
-                <label>
-                    Icon Dimension (n<i>x</i>n px)<br>
-                    <input type="number" id="iconDimension" step="8" min="8" disabled="">
-                </label>
-            </div>
+                    <label>
+                        Icon Dimension (n<i>x</i>n px)<br>
+                        <input type="number" id="iconDimension" step="8" min="8" disabled>
+                    </label>
+                </div>
             </li>
 
             <li>
                 <div>
-                <label>
-                    Icon Font (<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font">CanvasRenderingContext2D.font</a> after fontSize)<br>
-                    <input type="text" id="iconFont" disabled>
-                </label>
-            </div>
+                    <label>
+                        Icon Font (<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font">CanvasRenderingContext2D.font</a> after fontSize)<br>
+                        <input type="text" id="iconFont" disabled>
+                    </label>
+                </div>
             </li>
 
             <li>
                 <div>
-                <label>
-                    Icon Color<br>
-                    <input type="color" id="iconColor" disabled>
-                </label>
-            </div>
+                    <label>
+                        Icon Color<br>
+                        <input type="color" id="iconColor" disabled>
+                    </label>
+                </div>
             </li>
-            </ul>
 
-            <div>
-                Extension will be reloaded on submit.<br>
-                Reopen options if page broken.<br>
-                <button type="submit">Save</button>
-            </div>
-        </form>
-        <script src="shared.js"></script>
-        <script src="options.js"></script>
-    </body>
+            <li>
+                <div>
+                    <label>
+                        Font Size Multiplier<br>
+                        <input type="number" id="iconFontMultiplier" step="0.05" min="0" max="1" disabled>
+                    </label>
+                </div>
+            </li>
+        </ul>
+
+        <div>
+            Extension will be reloaded on submit.<br>
+            Reopen options if page broken.<br>
+            <button type="submit">Save</button>
+        </div>
+    </form>
+    <script src="shared.js"></script>
+    <script src="options.js"></script>
+</body>
+
 </html>

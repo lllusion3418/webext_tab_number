@@ -12,7 +12,8 @@ var defaultOptions = {
     // if displayMode == "icon"
     "iconDimension": 64, // refer https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/browser_action#Choosing_icon_sizes
     "iconFont": "sans-serif",
-    "iconColor": "#000000"
+    "iconColor": "#000000",
+    "iconFontMultiplier": 0.9,
 };
 
 function getOptions() {
@@ -27,5 +28,3 @@ function onError(error) {
         console.log(`Error: ${error}`);
     }
 }
-
-onError("foobar");
