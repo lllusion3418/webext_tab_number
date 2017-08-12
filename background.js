@@ -57,21 +57,16 @@ function main(options) {
         c.width = options.iconDimension;
         c.height = options.iconDimension;
         const ctx = c.getContext("2d");
-        /* https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
-         * such that text, which only consists of digits, fills the whole
-         * height of options.iconDimension px
-         * (approximately options.iconDimension pt)
-         * apparently virtually impossible to calculate ascender height
-         */
-        const fontSize = options.iconDimension * options.iconFontMultiplier;
-        ctx.font = `${fontSize}pt ${options.iconFont}`;
+
+        const fontSize = adjustedFontSize * options.iconFontMultiplier;
+        ctx.font = `${fontSize}px ${options.iconFont}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
         ctx.fillStyle = options.iconColor;
         ctx.fillText(
             text,
             options.iconDimension / 2,
-            options.iconDimension * (1 + options.iconFontMultiplier) / 2,
+            adjustedBottom * (1 + options.iconFontMultiplier) / 2,
             options.iconDimension
         );
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
@@ -92,6 +87,10 @@ function main(options) {
         browser.browserAction.setIcon({
             imageData: new ImageData(options.iconDimension, options.iconDimension)
         });
+
+        const str = "0123456789";
+        var adjustedBottom = getAdjustedBottom(options.iconFont, str, options.iconDimension);
+        var adjustedFontSize = getAdjustedFontSize(options.iconFont, str, options.iconDimension, adjustedBottom);
     } else {
         onError("invalid displayMode");
         return;
@@ -122,3 +121,54 @@ getOptions().then(
     main,
     onError
 );
+
+/* find distance from top, such that text touches bottom of canvas
+ */
+function getAdjustedBottom(font, str, height) {
+    const canvas = document.createElement("canvas");
+    canvas.height = height;
+    const width = height * str.length * 2;
+    canvas.width = width;
+    const ctx = canvas.getContext("2d");
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
+    ctx.font = `${height}pt ${font}`;
+
+    var bottom = height;
+    for (var i = bottom; i > 0; i--) {
+        ctx.fillText(str, width / 2, i, width);
+
+        // every pixel in bottom row is blank
+        var empty = ctx.getImageData(0, height - 1, width, 1).data.every(p => !p);
+        if (empty) {
+            return bottom;
+        }
+        bottom = i;
+        ctx.clearRect(0, 0, width, height);
+    }
+}
+
+/* find font size in px, such that text touches top of canvas
+ */
+function getAdjustedFontSize(font, str, height, bottom) {
+    const canvas = document.createElement("canvas");
+    canvas.height = height;
+    const width = height * str.length * 2;
+    canvas.width = width;
+    const ctx = canvas.getContext("2d");
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
+    const max = height * 2;
+    for (var fontSize = 1; fontSize < max; fontSize++) {
+        ctx.font = `${fontSize}px ${font}`;
+        ctx.fillText(str, width / 2, bottom, width);
+
+        // at least one pixel in top row is not blank
+        if (ctx.getImageData(0, 0, width, 1).data.some(p => p)) {
+            return fontSize;
+        }
+        ctx.clearRect(0, 0, width, height);
+    }
+}
