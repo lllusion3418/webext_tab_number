@@ -125,6 +125,7 @@ getOptions().then(
 
 /* find distance from top, such that text touches bottom of canvas
  * textBaseline = "ideographic" doesn't do the right thing
+ * assuming real bottom is underneath alphabetic baseline
  */
 function getAdjustedBottom(font, str, height, step) {
     const canvas = document.createElement("canvas");
