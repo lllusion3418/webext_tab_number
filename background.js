@@ -89,8 +89,9 @@ function main(options) {
         });
 
         const str = "0123456789";
-        var adjustedBottom = getAdjustedBottom(options.iconFont, str, options.iconDimension);
-        var adjustedFontSize = getAdjustedFontSize(options.iconFont, str, options.iconDimension, adjustedBottom);
+        const step = 1;
+        var adjustedBottom = getAdjustedBottom(options.iconFont, str, options.iconDimension, step);
+        var adjustedFontSize = getAdjustedFontSize(options.iconFont, str, options.iconDimension, step, adjustedBottom);
     } else {
         onError("invalid displayMode");
         return;
@@ -123,8 +124,9 @@ getOptions().then(
 );
 
 /* find distance from top, such that text touches bottom of canvas
+ * textBaseline = "ideographic" doesn't do the right thing
  */
-function getAdjustedBottom(font, str, height) {
+function getAdjustedBottom(font, str, height, step) {
     const canvas = document.createElement("canvas");
     canvas.height = height;
     const width = height * str.length * 2;
@@ -136,7 +138,7 @@ function getAdjustedBottom(font, str, height) {
     ctx.font = `${height}pt ${font}`;
 
     var bottom = height;
-    for (var i = bottom; i > 0; i--) {
+    for (var i = bottom; i > 0; i -= step) {
         ctx.fillText(str, width / 2, i, width);
 
         // every pixel in bottom row is blank
@@ -151,7 +153,7 @@ function getAdjustedBottom(font, str, height) {
 
 /* find font size in px, such that text touches top of canvas
  */
-function getAdjustedFontSize(font, str, height, bottom) {
+function getAdjustedFontSize(font, str, height, step, bottom) {
     const canvas = document.createElement("canvas");
     canvas.height = height;
     const width = height * str.length * 2;
@@ -161,7 +163,7 @@ function getAdjustedFontSize(font, str, height, bottom) {
     ctx.textBaseline = "alphabetic";
 
     const max = height * 2;
-    for (var fontSize = 1; fontSize < max; fontSize++) {
+    for (var fontSize = 1; fontSize < max; fontSize += step) {
         ctx.font = `${fontSize}px ${font}`;
         ctx.fillText(str, width / 2, bottom, width);
 
