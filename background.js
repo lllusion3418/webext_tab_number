@@ -142,8 +142,7 @@ function getAdjustedBottom(font, str, height, step) {
         ctx.fillText(str, width / 2, i, width);
 
         // every pixel in bottom row is blank
-        var empty = ctx.getImageData(0, height - 1, width, 1).data.every(p => !p);
-        if (empty) {
+        if (ctx.getImageData(0, height - 1, width, 1).data.every(p => !p)) {
             return bottom;
         }
         bottom = i;
