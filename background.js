@@ -123,6 +123,16 @@ function main(options) {
         });
         browser.tabs.onAttached.addListener((_, attachInfo) => updateActive(attachInfo.newWindowId));
 
+        /* On Nightly 58.0a1 (2017-10-07) sometimes a tab specific icon
+         * reverts to the default when the url changes (?) for no
+         * apparent reason
+         */
+        browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+            if ("url" in changeInfo) {
+                updateBadge(tabId, tab.windowId);
+            }
+        });
+
         updateActives();
     } else if (options.scope === "global") {
         browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
