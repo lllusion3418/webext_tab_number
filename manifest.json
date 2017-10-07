@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Tab Count Icon",
-    "version": "0.7",
+    "version": "0.7.1",
     "description": "Shows number of open tabs.",
     "permissions": [
         "tabs",
