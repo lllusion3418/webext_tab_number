@@ -3,8 +3,21 @@
 function main(options) {
     var setText;
 
+    /* On Release 56.0 and Beta 57.0b6-1 browser.tabs.query still returns
+     * a closed tab if called in caused onRemoved and (possibly) onActivated
+     * events, resulting in a wrong tab count being displayed
+     * Nightly 58.0a1 (2017-10-06) doesn't exhibit this behavior
+     */
+    var filterTab = null;
+    const tabsQueryFilter = queryInfo => new Promise((resolve, reject) =>
+        browser.tabs.query(queryInfo).then(
+            tabs => resolve(tabs.filter(i => i.id !== filterTab)),
+            reject
+        )
+    );
+
     function updateGlobal() {
-        browser.tabs.query({
+        tabsQueryFilter({
             "windowType": "normal"
         }).then(
             tabs => setText(null, tabs.length.toString()),
@@ -13,7 +26,7 @@ function main(options) {
     }
 
     function updateActives() {
-        browser.tabs.query({
+        tabsQueryFilter({
             active: true
         }).then(
             tabs => tabs.forEach(i => updateActive(i.windowId)),
@@ -22,7 +35,7 @@ function main(options) {
     }
 
     function updateActive(windowId) {
-        browser.tabs.query({
+        tabsQueryFilter({
             //active: true,
             windowId: windowId
         }).then(
@@ -35,7 +48,7 @@ function main(options) {
     }
 
     function updateBadge(tabId, windowId) {
-        browser.tabs.query({
+        tabsQueryFilter({
             windowId: windowId
         }).then(
             tabs => setText(tabId, tabs.length.toString()),
@@ -99,16 +112,27 @@ function main(options) {
 
     if (options.scope === "window") {
         browser.tabs.onActivated.addListener(activeInfo => updateBadge(activeInfo.tabId, activeInfo.windowId));
-        browser.tabs.onRemoved.addListener((_, removeInfo) => updateActive(removeInfo.windowId));
+        browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+            filterTab = tabId;
+            updateActive(removeInfo.windowId);
+        });
         browser.tabs.onDetached.addListener((_, detachInfo) => updateActive(detachInfo.oldWindowId));
-        browser.tabs.onCreated.addListener(tab => updateActive(tab.windowId));
+        browser.tabs.onCreated.addListener(tab => {
+            filterTab = null;
+            updateActive(tab.windowId);
+        });
         browser.tabs.onAttached.addListener((_, attachInfo) => updateActive(attachInfo.newWindowId));
 
         updateActives();
     } else if (options.scope === "global") {
-        [browser.tabs.onRemoved, browser.tabs.onCreated].forEach(
-            i => i.addListener(updateGlobal)
-        );
+        browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+            filterTab = tabId;
+            updateGlobal();
+        });
+        browser.tabs.onCreated.addListener(tab => {
+            filterTab = null;
+            updateGlobal();
+        });
 
         updateGlobal();
     } else {
