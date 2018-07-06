@@ -7,6 +7,8 @@ function main(options) {
      * a closed tab if called in caused onRemoved and (possibly) onActivated
      * events, resulting in a wrong tab count being displayed
      * Nightly 58.0a1 (2017-10-06) doesn't exhibit this behavior
+     * Nightly 61.0a1 (2018-04-20) working
+     * Release 59.0.2 (64-bit)     not working
      */
     var filterTab = null;
     const tabsQueryFilter = queryInfo => new Promise((resolve, reject) =>
@@ -126,6 +128,7 @@ function main(options) {
         /* On Nightly 58.0a1 (2017-10-07) sometimes a tab specific icon
          * reverts to the default when the url changes (?) for no
          * apparent reason
+         * Nightly 61.0a1 (2018-04-20) not working
          */
         browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             if ("url" in changeInfo) {
@@ -197,7 +200,7 @@ function getAdjustedFontSize(font, str, height, step, bottom) {
     ctx.textBaseline = "alphabetic";
 
     const max = height * 2;
-    for (var fontSize = 1; fontSize < max; fontSize += step) {
+    for (let fontSize = 1; fontSize < max; fontSize += step) {
         ctx.font = `${fontSize}px ${font}`;
         ctx.fillText(str, width / 2, bottom, width);
 
