@@ -56,8 +56,7 @@ function updateDisabled() {
     document.getElementById("iconFontMultiplier").disabled = !dm_icon;
 }
 
-function saveOptions(e) {
-    e.preventDefault();
+function saveOptions() {
     let scope;
     if (document.getElementById("scope_window").checked) {
         scope = "window";
@@ -97,9 +96,13 @@ function saveOptions(e) {
         }
     }
     browser.storage.local.set(changed);
+}
 
+function reloadExt() {
+    saveOptions();
     browser.runtime.reload();
 }
 
+document.getElementById("save").addEventListener("click", saveOptions);
+document.getElementById("reload").addEventListener("click", reloadExt);
 document.addEventListener("DOMContentLoaded", restoreSavedOptions);
-document.querySelector("form").addEventListener("submit", saveOptions);
