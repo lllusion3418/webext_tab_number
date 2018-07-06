@@ -27,47 +27,36 @@ function main(options) {
         );
     }
 
-    function updateActives() {
+    function updateWindows() {
         tabsQueryFilter({
             active: true
         }).then(
-            tabs => tabs.forEach(i => updateActive(i.windowId)),
+            tabs => tabs.forEach(i => updateWindow(i.windowId)),
             onError
         );
     }
 
-    function updateActive(windowId) {
+    function updateWindow(windowId) {
         tabsQueryFilter({
             //active: true,
             windowId: windowId
         }).then(
             tabs => {
-                const active = tabs.filter(i => i.active)[0];
-                setText(active.id, tabs.length.toString());
+                setText(windowId, tabs.length.toString());
             },
             onError
         );
     }
 
-    function updateBadge(tabId, windowId) {
-        tabsQueryFilter({
-            windowId: windowId
-        }).then(
-            tabs => setText(tabId, tabs.length.toString()),
-            onError
-        );
-    }
-
-
-    function setTextBadge(tabId, text) {
+    function setTextBadge(windowId, text) {
         browser.browserAction.setBadgeText({
             text: text,
-            tabId: tabId
+            windowId: windowId
         });
     }
 
 
-    function setTextIcon(tabId, text) {
+    function setTextIcon(windowId, text) {
         const c = document.createElement("canvas");
         c.width = options.iconDimension;
         c.height = options.iconDimension;
@@ -87,7 +76,7 @@ function main(options) {
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
         browser.browserAction.setIcon({
             imageData: data,
-            tabId: tabId
+            windowId: windowId
         });
     }
 
@@ -113,30 +102,18 @@ function main(options) {
     }
 
     if (options.scope === "window") {
-        browser.tabs.onActivated.addListener(activeInfo => updateBadge(activeInfo.tabId, activeInfo.windowId));
         browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
             filterTab = tabId;
-            updateActive(removeInfo.windowId);
+            updateWindow(removeInfo.windowId);
         });
-        browser.tabs.onDetached.addListener((_, detachInfo) => updateActive(detachInfo.oldWindowId));
+        browser.tabs.onDetached.addListener((_, detachInfo) => updateWindow(detachInfo.oldWindowId));
         browser.tabs.onCreated.addListener(tab => {
             filterTab = null;
-            updateActive(tab.windowId);
+            updateWindow(tab.windowId);
         });
-        browser.tabs.onAttached.addListener((_, attachInfo) => updateActive(attachInfo.newWindowId));
+        browser.tabs.onAttached.addListener((_, attachInfo) => updateWindow(attachInfo.newWindowId));
 
-        /* On Nightly 58.0a1 (2017-10-07) sometimes a tab specific icon
-         * reverts to the default when the url changes (?) for no
-         * apparent reason
-         * Nightly 61.0a1 (2018-04-20) not working
-         */
-        browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-            if ("url" in changeInfo) {
-                updateBadge(tabId, tab.windowId);
-            }
-        });
-
-        updateActives();
+        updateWindows();
     } else if (options.scope === "global") {
         browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
             filterTab = tabId;
