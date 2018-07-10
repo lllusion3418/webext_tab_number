@@ -175,11 +175,11 @@ function main(options, useWindowId) {
             updateActives();
         }
     } else if (options.scope === "global") {
-        browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+        browser.tabs.onRemoved.addListener(tabId => {
             filterTab = tabId;
             updateGlobal();
         });
-        browser.tabs.onCreated.addListener(tab => {
+        browser.tabs.onCreated.addListener(() => {
             filterTab = null;
             updateGlobal();
         });
