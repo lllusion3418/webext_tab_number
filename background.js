@@ -38,7 +38,6 @@ function main(options, useWindowId) {
 
     function updateWindow(windowId) {
         tabsQueryFilter({
-            //active: true,
             windowId: windowId
         }).then(
             tabs => {
@@ -100,7 +99,9 @@ function main(options, useWindowId) {
             adjustedBottom * (1 + options.iconFontMultiplier) / 2,
             options.iconDimension
         );
-        const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
+        const data = ctx.getImageData(
+            0, 0, options.iconDimension, options.iconDimension
+        );
         browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
     }
 
@@ -118,8 +119,12 @@ function main(options, useWindowId) {
 
         const str = "0123456789";
         const step = 1;
-        var adjustedBottom = getAdjustedBottom(options.iconFont, str, options.iconDimension, step);
-        var adjustedFontSize = getAdjustedFontSize(options.iconFont, str, options.iconDimension, step, adjustedBottom);
+        var adjustedBottom = getAdjustedBottom(
+            options.iconFont, str, options.iconDimension, step
+        );
+        var adjustedFontSize = getAdjustedFontSize(
+            options.iconFont, str, options.iconDimension, step, adjustedBottom
+        );
     } else {
         onError("invalid displayMode");
         return;
@@ -131,12 +136,16 @@ function main(options, useWindowId) {
                 filterTab = tabId;
                 updateWindow(removeInfo.windowId);
             });
-            browser.tabs.onDetached.addListener((_, detachInfo) => updateWindow(detachInfo.oldWindowId));
+            browser.tabs.onDetached.addListener(
+                (_, detachInfo) => updateWindow(detachInfo.oldWindowId)
+            );
             browser.tabs.onCreated.addListener(tab => {
                 filterTab = null;
                 updateWindow(tab.windowId);
             });
-            browser.tabs.onAttached.addListener((_, attachInfo) => updateWindow(attachInfo.newWindowId));
+            browser.tabs.onAttached.addListener(
+                (_, attachInfo) => updateWindow(attachInfo.newWindowId)
+            );
 
             updateWindows();
         } else {
