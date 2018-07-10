@@ -1,5 +1,5 @@
-/* global defaultOptions, getOptions, onError */
-/* exported defaultOptions, getOptions, onError */
+/* global defaultOptions, getOptions, onError, supportsWindowId */
+/* exported defaultOptions, getOptions, onError, supportsWindowId */
 "use strict";
 
 var defaultOptions = {
@@ -27,4 +27,19 @@ function onError(error) {
         /* eslint no-console: ["off"] */
         console.log(`Error: ${error}`);
     }
+}
+
+/* Whether `windowId` is supported as an parameter to browserAction.setIcon and
+ * browserAction.setBadgeText
+ * Firefox version >= 62
+ */
+function supportsWindowId() {
+    return new Promise((resolve, reject) => {
+        browser.runtime.getBrowserInfo().then(
+            info => resolve(
+                info.name === "Firefox" && parseInt(info.version) >= 62
+            ),
+            reject
+        );
+    });
 }

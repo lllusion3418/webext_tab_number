@@ -1,6 +1,6 @@
-/* globals getOptions, onError */
+/* globals getOptions, onError, supportsWindowId */
 "use strict";
-function main(options) {
+function main(options, useWindowId) {
     var setText;
 
     /* On Release 56.0 and Beta 57.0b6-1 browser.tabs.query still returns
@@ -42,21 +42,48 @@ function main(options) {
             windowId: windowId
         }).then(
             tabs => {
-                setText(windowId, tabs.length.toString());
+                setText({windowId: windowId}, tabs.length.toString());
             },
             onError
         );
     }
 
-    function setTextBadge(windowId, text) {
-        browser.browserAction.setBadgeText({
-            text: text,
+    function updateActive(windowId) {
+        tabsQueryFilter({
             windowId: windowId
-        });
+        }).then(
+            tabs => {
+                const active = tabs.filter(i => i.active)[0];
+                setText({tabId: active.id}, tabs.length.toString());
+            },
+            onError
+        );
+    }
+
+    function updateActives() {
+        tabsQueryFilter({
+            active: true
+        }).then(
+            tabs => tabs.forEach(i => updateTab(i.id, i.windowId)),
+            onError
+        );
+    }
+
+    function updateTab(tabId, windowId) {
+        tabsQueryFilter({
+            windowId: windowId
+        }).then(
+            tabs => setText({tabId: tabId}, tabs.length.toString()),
+            onError
+        );
+    }
+
+    function setTextBadge(spec, text) {
+        browser.browserAction.setBadgeText(Object.assign({text: text}, spec));
     }
 
 
-    function setTextIcon(windowId, text) {
+    function setTextIcon(spec, text) {
         const c = document.createElement("canvas");
         c.width = options.iconDimension;
         c.height = options.iconDimension;
@@ -74,10 +101,7 @@ function main(options) {
             options.iconDimension
         );
         const data = ctx.getImageData(0, 0, options.iconDimension, options.iconDimension);
-        browser.browserAction.setIcon({
-            imageData: data,
-            windowId: windowId
-        });
+        browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
     }
 
     if (options.displayMode === "badge") {
@@ -102,18 +126,45 @@ function main(options) {
     }
 
     if (options.scope === "window") {
-        browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
-            filterTab = tabId;
-            updateWindow(removeInfo.windowId);
-        });
-        browser.tabs.onDetached.addListener((_, detachInfo) => updateWindow(detachInfo.oldWindowId));
-        browser.tabs.onCreated.addListener(tab => {
-            filterTab = null;
-            updateWindow(tab.windowId);
-        });
-        browser.tabs.onAttached.addListener((_, attachInfo) => updateWindow(attachInfo.newWindowId));
+        if (useWindowId) {
+            browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+                filterTab = tabId;
+                updateWindow(removeInfo.windowId);
+            });
+            browser.tabs.onDetached.addListener((_, detachInfo) => updateWindow(detachInfo.oldWindowId));
+            browser.tabs.onCreated.addListener(tab => {
+                filterTab = null;
+                updateWindow(tab.windowId);
+            });
+            browser.tabs.onAttached.addListener((_, attachInfo) => updateWindow(attachInfo.newWindowId));
 
-        updateWindows();
+            updateWindows();
+        } else {
+            browser.tabs.onActivated.addListener(
+                activeInfo => updateTab(activeInfo.tabId, activeInfo.windowId)
+            );
+            browser.tabs.onDetached.addListener(
+                (_, detachInfo) => updateActive(detachInfo.oldWindowId)
+            );
+            browser.tabs.onAttached.addListener(
+                (_, attachInfo) => updateActive(attachInfo.newWindowId)
+            );
+            browser.tabs.onCreated.addListener(tab => {
+                filterTab = null;
+                updateTab(tab.id, tab.windowId);
+            });
+            browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+                filterTab = tabId;
+                updateActive(removeInfo.windowId);
+            });
+            browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+                if ("url" in changeInfo && tab.active) {
+                    updateTab(tabId, tab.windowId);
+                }
+            });
+
+            updateActives();
+        }
     } else if (options.scope === "global") {
         browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
             filterTab = tabId;
@@ -132,8 +183,8 @@ function main(options) {
 
 }
 
-getOptions().then(
-    main,
+Promise.all([getOptions(), supportsWindowId()]).then(
+    values => main.apply(null, values),
     onError
 );
 
