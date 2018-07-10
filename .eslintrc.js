@@ -2,57 +2,71 @@ module.exports = {
     "env": {
         "webextensions": true,
         "browser": true,
-        "es6": true
+        "es6": true,
     },
     "extends": "eslint:recommended",
     "rules": {
         "indent": [
             "error",
-            4
+            4,
         ],
         "linebreak-style": [
             "error",
-            "unix"
+            "unix",
         ],
         "quotes": [
             "error",
-            "double"
+            "double",
         ],
         "semi": [
             "error",
-            "always"
+            "always",
         ],
         "no-unused-vars": [
-            "error"
+            "error",
         ],
         "keyword-spacing": [
-            "error"
+            "error",
         ],
         "eqeqeq": [
             "error",
-            "smart"
+            "smart",
         ],
         "space-infix-ops": [
             "error",
             {
-                "int32Hint": true
-            }
+                "int32Hint": true,
+            },
         ],
         "comma-spacing": [
-            "error"
+            "error",
         ],
         "brace-style": [
-            "error"
+            "error",
         ],
         "curly": [
             "error",
-            "multi-line"
+            "multi-line",
         ],
         "no-undef": [
-            "error"
+            "error",
         ],
         "no-console": [
-            "error"
+            "error",
         ],
-    }
+        "strict": [
+            "error",
+            "global",
+        ],
+        "comma-dangle": [
+            "error",
+            "always-multiline",
+        ],
+        "no-octal": [
+            "error",
+        ],
+        "no-trailing-spaces": [
+            "error",
+        ]
+    },
 };

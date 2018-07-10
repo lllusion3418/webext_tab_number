@@ -20,7 +20,7 @@ function main(options, useWindowId) {
 
     function updateGlobal() {
         tabsQueryFilter({
-            "windowType": "normal"
+            "windowType": "normal",
         }).then(
             tabs => setText(null, tabs.length.toString()),
             onError
@@ -29,7 +29,7 @@ function main(options, useWindowId) {
 
     function updateWindows() {
         tabsQueryFilter({
-            active: true
+            active: true,
         }).then(
             tabs => tabs.forEach(i => updateWindow(i.windowId)),
             onError
@@ -38,7 +38,7 @@ function main(options, useWindowId) {
 
     function updateWindow(windowId) {
         tabsQueryFilter({
-            windowId: windowId
+            windowId: windowId,
         }).then(
             tabs => {
                 setText({windowId: windowId}, tabs.length.toString());
@@ -49,7 +49,7 @@ function main(options, useWindowId) {
 
     function updateActive(windowId) {
         tabsQueryFilter({
-            windowId: windowId
+            windowId: windowId,
         }).then(
             tabs => {
                 const active = tabs.filter(i => i.active)[0];
@@ -61,7 +61,7 @@ function main(options, useWindowId) {
 
     function updateActives() {
         tabsQueryFilter({
-            active: true
+            active: true,
         }).then(
             tabs => tabs.forEach(i => updateTab(i.id, i.windowId)),
             onError
@@ -70,7 +70,7 @@ function main(options, useWindowId) {
 
     function updateTab(tabId, windowId) {
         tabsQueryFilter({
-            windowId: windowId
+            windowId: windowId,
         }).then(
             tabs => setText({tabId: tabId}, tabs.length.toString()),
             onError
@@ -114,7 +114,7 @@ function main(options, useWindowId) {
          * for < 1s when switching to previously unset tab
          */
         browser.browserAction.setIcon({
-            imageData: new ImageData(options.iconDimension, options.iconDimension)
+            imageData: new ImageData(options.iconDimension, options.iconDimension),
         });
 
         const str = "0123456789";
@@ -189,7 +189,6 @@ function main(options, useWindowId) {
         onError("invalid scope");
         return;
     }
-
 }
 
 Promise.all([getOptions(), supportsWindowId()]).then(
