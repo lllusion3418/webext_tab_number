@@ -34,12 +34,13 @@ function onError(error) {
  * Firefox version >= 62
  */
 function supportsWindowId() {
-    return new Promise((resolve, reject) => {
+    if (!browser.runtime.getBrowserInfo) return Promise.resolve(false);
+    return new Promise(resolve => {
         browser.runtime.getBrowserInfo().then(
             info => resolve(
-                info.name === "Firefox" && parseInt(info.version) >= 62
+                info.name === "Firefox" && parseInt(info.version, 10) >= 62
             ),
-            reject
+            () => resolve(false)
         );
     });
 }
