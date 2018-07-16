@@ -87,20 +87,24 @@ function saveOptions() {
         "iconFontMultiplier": parseFloat(document.getElementById("iconFontMultiplier").value),
     };
 
+    let promises = [];
     let changed = Object();
     for (let i in entered) {
         if (entered[i] === defaultOptions[i]) {
-            browser.storage.local.remove(i);
+            promises.push(browser.storage.local.remove(i));
         } else {
             changed[i] = entered[i];
         }
     }
-    browser.storage.local.set(changed);
+    promises.push(browser.storage.local.set(changed));
+    return Promise.all(promises);
 }
 
 function reloadExt() {
-    saveOptions();
-    browser.runtime.reload();
+    return saveOptions().then(
+        () => browser.runtime.reload(),
+        onError
+    );
 }
 
 document.getElementById("save").addEventListener("click", saveOptions);
