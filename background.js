@@ -83,24 +83,15 @@ function main(options, useWindowId) {
 
 
     function setTextIcon(spec, text) {
-        const c = document.createElement("canvas");
-        c.width = options.iconDimension;
-        c.height = options.iconDimension;
-        const ctx = c.getContext("2d");
-
-        const fontSize = adjustedFontSize * options.iconFontMultiplier;
-        ctx.font = `${fontSize}px ${options.iconFont}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "alphabetic";
-        ctx.fillStyle = options.iconColor;
-        ctx.fillText(
+        const data = drawTextCanvas(
             text,
-            options.iconDimension / 2,
-            adjustedBottom * (1 + options.iconFontMultiplier) / 2,
-            options.iconDimension
-        );
-        const data = ctx.getImageData(
-            0, 0, options.iconDimension, options.iconDimension
+            options.iconDimension,
+            options.iconDimension,
+            options.font,
+            options.iconFontMultiplier,
+            options.iconColor,
+            adjustedFontSize,
+            adjustedBottom
         );
         browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
     }
@@ -195,6 +186,34 @@ Promise.all([getOptions(), supportsWindowId()]).then(
     values => main.apply(null, values),
     onError
 );
+
+/* draw centered text to canvas and return image data
+ */
+function drawTextCanvas(
+    text, width, height, font, fontSizeMultiplier, color, adjFontSize, bottom
+) {
+    const fontSize = adjFontSize * fontSizeMultiplier;
+    const c = document.createElement("canvas");
+    c.width = width;
+    c.height = height;
+    const ctx = c.getContext("2d");
+
+    ctx.font = `${fontSize}px ${font}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = color;
+    ctx.fillText(
+        text,
+        width / 2,
+        bottom * (1 + fontSizeMultiplier) / 2,
+        width
+    );
+    const data = ctx.getImageData(
+        0, 0, width, height
+    );
+    return data;
+}
+
 
 /* find distance from top, such that text touches bottom of canvas
  * textBaseline = "ideographic" doesn't do the right thing
