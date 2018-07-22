@@ -58,25 +58,11 @@ function updateDisabled() {
 }
 
 function saveOptions() {
-    let scope;
-    if (document.getElementById("scope_window").checked) {
-        scope = "window";
-    } else if (document.getElementById("scope_global").checked) {
-        scope = "global";
-    } else {
-        onError("no scope selected");
-        return;
-    }
+    let scope = document.querySelector("input[name='scope']:checked").value;
 
-    let displayMode;
-    if (document.getElementById("dm_icon").checked) {
-        displayMode = "icon";
-    } else if (document.getElementById("dm_badge").checked) {
-        displayMode = "badge";
-    } else {
-        onError("no displayMode selected");
-        return;
-    }
+    let displayMode = document.querySelector(
+        "input[name='displayMode']:checked"
+    ).value;
 
     const entered = {
         "scope": scope,
