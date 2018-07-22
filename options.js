@@ -54,6 +54,7 @@ function updateDisabled() {
     document.getElementById("iconFont").disabled = !dm_icon;
     document.getElementById("iconColor").disabled = !dm_icon;
     document.getElementById("iconFontMultiplier").disabled = !dm_icon;
+    document.getElementById("openFontDialog").disabled = !dm_icon;
 }
 
 function saveOptions() {
@@ -107,6 +108,41 @@ function reloadExt() {
     );
 }
 
+function openFontDialog() {
+    document.getElementById("fontDialog").style.display = "block";
+}
+
+function closeFontDialog() {
+    document.getElementById("fontDialog").style.display = "";
+}
+
+function fontDialogApply() {
+    const font_name = document.getElementById("fontName").value;
+    let font_family = document.querySelector(
+        "input[name='font-family']:checked"
+    );
+
+    let font_families = [];
+    if (font_name) {
+        if (font_name.includes('"')) {
+            window.alert("font name can't include quotes (\")");
+            return;
+        }
+        font_families.push(`"${font_name}"`);
+    }
+    if (font_family !== null) {
+        font_families.push(font_family.value);
+    }
+    let font = font_families.join(", ");
+
+    document.getElementById("iconFont").value = font;
+
+    closeFontDialog();
+}
+
 document.getElementById("save").addEventListener("click", saveOptions);
 document.getElementById("reload").addEventListener("click", reloadExt);
+document.getElementById("openFontDialog").addEventListener("click", openFontDialog);
+document.getElementById("fontDialogCancel").addEventListener("click", closeFontDialog);
+document.getElementById("fontDialogApply").addEventListener("click", fontDialogApply);
 document.addEventListener("DOMContentLoaded", restoreSavedOptions);

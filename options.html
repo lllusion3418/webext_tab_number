@@ -59,8 +59,9 @@
             <li>
                 <div>
                     <label>
-                        Icon Font (put font name in quotes, <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font">CanvasRenderingContext2D.font</a> after fontSize)<br>
-                        <input type="text" id="iconFont" disabled>
+                        Icon Font (<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font">CanvasRenderingContext2D.font</a> after fontSize)<br>
+                        <input type="text" id="iconFont" disabled><br>
+                        <button id="openFontDialog" type="button" disabled>Helper</button>
                     </label>
                 </div>
             </li>
@@ -91,6 +92,42 @@
             <button id="reload" type="button">Reload</button>
         </div>
     </form>
+
+    <div id="fontDialog" class="overlay">
+        <form>
+            <ul>
+                <li>
+                    <label>
+                        font name (optional)
+                        <input type="text" id="fontName">
+                    </label>
+                </li>
+                <li>
+                    <div>
+                        font-family<br>
+                        (uses system default for selected font-family as a fallback if font name not specified or invalid)<br>
+                        <label>
+                            <input type="radio" name="font-family" value="serif" id="font-family_serif">
+                            serif
+                        </label></br>
+                        <label>
+                            <input type="radio" name="font-family" value="sans-serif" id="font-family_sans-serif" checked>
+                            sans-serif
+                        </label><br>
+                        <label>
+                            <input type="radio" name="font-family" value="monospace" id="font-family_monospace">
+                            monospace
+                        </label><br>
+                    </div>
+                </li>
+            </ul>
+            <div>
+                <button id="fontDialogCancel" type="button">Cancel</button>
+                <button id="fontDialogApply" type="button">Apply</button>
+            </div>
+        </form>
+    </div>
+
     <script src="shared.js"></script>
     <script src="options.js"></script>
 </body>

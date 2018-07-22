@@ -17,3 +17,17 @@ form {
     margin: 10px auto;
     padding: 20px;
 }
+
+/* https://stackoverflow.com/a/19065024 */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    padding: 5px;
+    border: 5px solid orange;
+    background-color: white;
+    z-index: 1002;
+    overflow: auto;
+}
