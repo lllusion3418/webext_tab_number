@@ -87,7 +87,7 @@ function main(options, useWindowId) {
             text,
             options.iconDimension,
             options.iconDimension,
-            options.font,
+            options.iconFont,
             options.iconFontMultiplier,
             options.iconColor,
             adjustedFontSize,
