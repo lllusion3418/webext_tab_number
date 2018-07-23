@@ -24,7 +24,7 @@ var debugging = true;
 
 function onError(error) {
     if (debugging) {
-        /* eslint no-console: ["off"] */
+        // eslint-disable-next-line no-console
         console.log(`Error: ${error}`);
     }
 }
