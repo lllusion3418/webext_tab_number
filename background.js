@@ -1,6 +1,6 @@
-/* globals getOptions, onError, supportsWindowId */
+/* globals getOptions, onError, supportsWindowId, supportsTabReset */
 "use strict";
-function main(options, useWindowId) {
+function main(options, useWindowId, doTabReset) {
     /* eslint no-restricted-properties: ["error", {
         "property": "addListener",
     }] */
@@ -39,7 +39,9 @@ function main(options, useWindowId) {
     }
 
     addListener(browser.storage.onChanged, () => {
-        resetBadgeIconAll();
+        if (doTabReset) {
+            resetBadgeIconAll();
+        }
         removeListeners().then(run);
     });
 
@@ -239,7 +241,7 @@ function main(options, useWindowId) {
 }
 
 function run() {
-    Promise.all([getOptions(), supportsWindowId()]).then(
+    Promise.all([getOptions(), supportsWindowId(), supportsTabReset()]).then(
         values => main.apply(null, values),
         onError
     );

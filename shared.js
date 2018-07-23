@@ -1,5 +1,5 @@
-/* global defaultOptions, getOptions, onError, supportsWindowId */
-/* exported defaultOptions, getOptions, onError, supportsWindowId */
+/* global defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset */
+/* exported defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset */
 "use strict";
 
 var defaultOptions = {
@@ -39,6 +39,21 @@ function supportsWindowId() {
         browser.runtime.getBrowserInfo().then(
             info => resolve(
                 info.name === "Firefox" && parseInt(info.version, 10) >= 62
+            ),
+            () => resolve(false)
+        );
+    });
+}
+
+/* Whether browserAction.setIcon and browserAction.setBadgeText support
+ * resetting individual tabs icons/badges by passing `null`
+ */
+function supportsTabReset() {
+    if (!browser.runtime.getBrowserInfo) return Promise.resolve(false);
+    return new Promise(resolve => {
+        browser.runtime.getBrowserInfo().then(
+            info => resolve(
+                info.name === "Firefox" && parseInt(info.version, 10) >= 59
             ),
             () => resolve(false)
         );

@@ -1,4 +1,4 @@
-/* globals getOptions, onError */
+/* globals getOptions, onError, supportsTabReset */
 "use strict";
 
 function restoreOptions(opt) {
@@ -89,37 +89,68 @@ function fontDialogApply() {
     closeFontDialog();
 }
 
-document.querySelectorAll("input[name='scope']").forEach(element => {
-    element.addEventListener("input", e => {
-        if (e.target.checked) {
-            browser.storage.local.set({"scope": e.target.value});
-        }
+function initSaveEvents(noReload) {
+    const reloadMsg =
+        "Extension reload necessary due to browser version.\n" +
+        "Reload Page (F5) if formatting is messed up";
+    document.querySelectorAll("input[name='scope']").forEach(element => {
+        element.addEventListener("input", e => {
+            if (!e.target.checked) return;
+            let reload = false;
+            if ((!noReload) && e.target.value === "global") {
+                const ok = window.confirm(reloadMsg);
+                if (!ok) {
+                    restoreSavedOptions();
+                    return;
+                }
+                reload = true;
+            }
+            let p = browser.storage.local.set({"scope": e.target.value});
+            if (reload) {
+                p.then(() => browser.runtime.reload());
+            }
+        });
     });
-});
-document.querySelectorAll("input[name='displayMode']").forEach(element => {
-    element.addEventListener("input", e => {
-        if (e.target.checked) {
-            browser.storage.local.set({"displayMode": e.target.value});
-        }
+    document.querySelectorAll("input[name='displayMode']").forEach(element => {
+        element.addEventListener("input", e => {
+            if (!e.target.checked) return;
+            let reload = false;
+            if (!noReload) {
+                const ok = window.confirm(
+                    reloadMsg
+                );
+                if (!ok) {
+                    restoreSavedOptions();
+                    return;
+                }
+                reload = true;
+            }
+            let p = browser.storage.local.set({"displayMode": e.target.value});
+            if (reload) {
+                p.then(() => browser.runtime.reload());
+            }
+        });
     });
-});
-document.getElementById("badgeBg").addEventListener("input", e => {
-    browser.storage.local.set({"badgeBg": e.target.value});
-});
-document.getElementById("iconDimension").addEventListener("input", e => {
-    browser.storage.local.set({"iconDimension": parseInt(e.target.value, 10)});
-});
-document.getElementById("iconFont").addEventListener("input", e => {
-    browser.storage.local.set({"iconFont": e.target.value});
-});
-document.getElementById("iconColor").addEventListener("input", e => {
-    browser.storage.local.set({"iconColor": e.target.value});
-});
-document.getElementById("iconFontMultiplier").addEventListener("input", e => {
-    browser.storage.local.set({"iconFontMultiplier": parseFloat(e.target.value)});
-});
+    document.getElementById("badgeBg").addEventListener("input", e => {
+        browser.storage.local.set({"badgeBg": e.target.value});
+    });
+    document.getElementById("iconDimension").addEventListener("input", e => {
+        browser.storage.local.set({"iconDimension": parseInt(e.target.value, 10)});
+    });
+    document.getElementById("iconFont").addEventListener("input", e => {
+        browser.storage.local.set({"iconFont": e.target.value});
+    });
+    document.getElementById("iconColor").addEventListener("input", e => {
+        browser.storage.local.set({"iconColor": e.target.value});
+    });
+    document.getElementById("iconFontMultiplier").addEventListener("input", e => {
+        browser.storage.local.set({"iconFontMultiplier": parseFloat(e.target.value)});
+    });
+}
 
 document.getElementById("openFontDialog").addEventListener("click", openFontDialog);
 document.getElementById("fontDialogCancel").addEventListener("click", closeFontDialog);
 document.getElementById("fontDialogApply").addEventListener("click", fontDialogApply);
 document.addEventListener("DOMContentLoaded", restoreSavedOptions);
+
+supportsTabReset().then(initSaveEvents);
