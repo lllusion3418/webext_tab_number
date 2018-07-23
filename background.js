@@ -1,6 +1,9 @@
 /* globals getOptions, onError, supportsWindowId */
 "use strict";
 function main(options, useWindowId) {
+    /* eslint no-restricted-properties: ["error", {
+        "property": "addListener",
+    }] */
     var setText;
 
     /* On Release 56.0 and Beta 57.0b6-1 browser.tabs.query still returns
@@ -17,6 +20,59 @@ function main(options, useWindowId) {
             reject
         )
     );
+
+
+    var listeners = [];
+    function addListener(listener, f) {
+        listeners.push({
+            listener: listener,
+            f: f,
+        });
+        // eslint-disable-next-line no-restricted-properties
+        listener.addListener(f);
+    }
+
+    function removeListeners() {
+        return Promise.all(
+            listeners.map(i => i.listener.removeListener(i.f))
+        );
+    }
+
+    addListener(browser.storage.onChanged, () => {
+        resetBadgeIconAll();
+        removeListeners().then(run);
+    });
+
+    function resetBadgeIconAll() {
+        resetBadgeIcon(null);
+        if (options.scope !== "window") return;
+        if (useWindowId) {
+            return browser.tabs.query({
+                active: true,
+            }).then(tabs => tabs.forEach(i => {
+                resetBadgeIcon({windowId: i.windowId});
+            }));
+        } else {
+            return browser.tabs.query({}).then(tabs => tabs.forEach(i => {
+                resetBadgeIcon({tabId: i.id});
+            }));
+        }
+    }
+
+    function resetBadgeIcon(spec) {
+        if (options.displayMode === "badge") {
+            browser.browserAction.setBadgeText(
+                Object.assign({text: null}, spec)
+            );
+        } else if (options.displayMode === "icon") {
+            browser.browserAction.setIcon(
+                Object.assign({imageData: null}, spec)
+            );
+        } else {
+            onError("invalid displayMode");
+            return;
+        }
+    }
 
     function updateGlobal() {
         tabsQueryFilter({
@@ -123,41 +179,41 @@ function main(options, useWindowId) {
 
     if (options.scope === "window") {
         if (useWindowId) {
-            browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+            addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
                 filterTab = tabId;
                 updateWindow(removeInfo.windowId);
             });
-            browser.tabs.onDetached.addListener(
-                (_, detachInfo) => updateWindow(detachInfo.oldWindowId)
+            addListener(browser.tabs.onDetached, (_, detachInfo) =>
+                updateWindow(detachInfo.oldWindowId)
             );
-            browser.tabs.onCreated.addListener(tab => {
+            addListener(browser.tabs.onCreated, tab => {
                 filterTab = null;
                 updateWindow(tab.windowId);
             });
-            browser.tabs.onAttached.addListener(
-                (_, attachInfo) => updateWindow(attachInfo.newWindowId)
+            addListener(browser.tabs.onAttached, (_, attachInfo) =>
+                updateWindow(attachInfo.newWindowId)
             );
 
             updateWindows();
         } else {
-            browser.tabs.onActivated.addListener(
-                activeInfo => updateTab(activeInfo.tabId, activeInfo.windowId)
+            addListener(browser.tabs.onActivated, activeInfo =>
+                updateTab(activeInfo.tabId, activeInfo.windowId)
             );
-            browser.tabs.onDetached.addListener(
-                (_, detachInfo) => updateActive(detachInfo.oldWindowId)
+            addListener(browser.tabs.onDetached, (_, detachInfo) =>
+                updateActive(detachInfo.oldWindowId)
             );
-            browser.tabs.onAttached.addListener(
-                (_, attachInfo) => updateActive(attachInfo.newWindowId)
+            addListener(browser.tabs.onAttached, (_, attachInfo) =>
+                updateActive(attachInfo.newWindowId)
             );
-            browser.tabs.onCreated.addListener(tab => {
+            addListener(browser.tabs.onCreated, tab => {
                 filterTab = null;
                 updateTab(tab.id, tab.windowId);
             });
-            browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
+            addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
                 filterTab = tabId;
                 updateActive(removeInfo.windowId);
             });
-            browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+            addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
                 if ("url" in changeInfo && tab.active) {
                     updateTab(tabId, tab.windowId);
                 }
@@ -166,11 +222,11 @@ function main(options, useWindowId) {
             updateActives();
         }
     } else if (options.scope === "global") {
-        browser.tabs.onRemoved.addListener(tabId => {
+        addListener(browser.tabs.onRemoved, tabId => {
             filterTab = tabId;
             updateGlobal();
         });
-        browser.tabs.onCreated.addListener(() => {
+        addListener(browser.tabs.onCreated, () => {
             filterTab = null;
             updateGlobal();
         });
@@ -182,10 +238,14 @@ function main(options, useWindowId) {
     }
 }
 
-Promise.all([getOptions(), supportsWindowId()]).then(
-    values => main.apply(null, values),
-    onError
-);
+function run() {
+    Promise.all([getOptions(), supportsWindowId()]).then(
+        values => main.apply(null, values),
+        onError
+    );
+}
+
+run();
 
 /* draw centered text to canvas and return image data
  */
