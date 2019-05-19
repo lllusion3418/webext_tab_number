@@ -28,18 +28,18 @@ async function main() {
 
 
     let listeners = [];
-    function addListener(listener, f) {
+    function addListener(event, listener) {
         listeners.push({
+            event: event,
             listener: listener,
-            f: f,
         });
         // eslint-disable-next-line no-restricted-properties
-        listener.addListener(f);
+        event.addListener(listener);
     }
 
     function removeListeners() {
         return Promise.all(
-            listeners.map(i => i.listener.removeListener(i.f))
+            listeners.map(i => i.event.removeListener(i.listener))
         );
     }
 
