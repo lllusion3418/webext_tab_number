@@ -5,6 +5,7 @@ function main(options, useWindowId, doTabReset) {
         "property": "addListener",
     }] */
     var setText;
+    let fontcfg;
 
     /* On Release 56.0 and Beta 57.0b6-1 browser.tabs.query still returns
      * a closed tab if called in caused onRemoved and (possibly) onActivated
@@ -145,11 +146,9 @@ function main(options, useWindowId, doTabReset) {
             text,
             options.iconDimension,
             options.iconDimension,
-            options.iconFont,
             options.iconFontMultiplier,
             options.iconColor,
-            adjustedFontSize,
-            adjustedBottom
+            fontcfg
         );
         browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
     }
@@ -166,14 +165,7 @@ function main(options, useWindowId, doTabReset) {
             imageData: new ImageData(options.iconDimension, options.iconDimension),
         });
 
-        const str = "0123456789";
-        const step = 1;
-        var adjustedBottom = getAdjustedBottom(
-            options.iconFont, str, options.iconDimension, step
-        );
-        var adjustedFontSize = getAdjustedFontSize(
-            options.iconFont, str, options.iconDimension, step, adjustedBottom
-        );
+        fontcfg = getFontcfg(options.iconFont, options.iconDimension, "0123456789", 1);
     } else {
         onError("invalid displayMode");
         return;
@@ -252,22 +244,22 @@ run();
 /* draw centered text to canvas and return image data
  */
 function drawTextCanvas(
-    text, width, height, font, fontSizeMultiplier, color, adjFontSize, bottom
+    text, width, height, fontSizeMultiplier, color, fontcfg
 ) {
-    const fontSize = adjFontSize * fontSizeMultiplier;
+    const fontSize = fontcfg.adjustedFontSize * fontSizeMultiplier;
     const c = document.createElement("canvas");
     c.width = width;
     c.height = height;
     const ctx = c.getContext("2d");
 
-    ctx.font = `${fontSize}px ${font}`;
+    ctx.font = `${fontSize}px ${fontcfg.font}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = color;
     ctx.fillText(
         text,
         width / 2,
-        bottom * (1 + fontSizeMultiplier) / 2,
+        fontcfg.adjustedBottom * (1 + fontSizeMultiplier) / 2,
         width
     );
     const data = ctx.getImageData(
@@ -327,4 +319,14 @@ function getAdjustedFontSize(font, str, height, step, bottom) {
         }
         ctx.clearRect(0, 0, width, height);
     }
+}
+
+function getFontcfg(font, height, str, step) {
+    const adjustedBottom = getAdjustedBottom(font, str, height, step);
+    const adjustedFontSize = getAdjustedFontSize(font, str, height, step, adjustedBottom);
+    return {
+        font: font,
+        adjustedBottom: adjustedBottom,
+        adjustedFontSize: adjustedFontSize,
+    };
 }
