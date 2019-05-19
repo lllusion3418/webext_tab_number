@@ -4,7 +4,7 @@ function main(options, useWindowId, doTabReset) {
     /* eslint no-restricted-properties: ["error", {
         "property": "addListener",
     }] */
-    var setText;
+    let setText;
     let fontcfg;
 
     /* On Release 56.0 and Beta 57.0b6-1 browser.tabs.query still returns
@@ -14,7 +14,7 @@ function main(options, useWindowId, doTabReset) {
      * Nightly 61.0a1 (2018-04-20) working
      * Release 59.0.2 (64-bit)     not working
      */
-    var filterTab = null;
+    let filterTab = null;
     const tabsQueryFilter = queryInfo => new Promise((resolve, reject) =>
         browser.tabs.query(queryInfo).then(
             tabs => resolve(tabs.filter(i => i.id !== filterTab)),
@@ -23,7 +23,7 @@ function main(options, useWindowId, doTabReset) {
     );
 
 
-    var listeners = [];
+    let listeners = [];
     function addListener(listener, f) {
         listeners.push({
             listener: listener,
@@ -284,8 +284,8 @@ function getAdjustedBottom(font, str, height, step) {
 
     ctx.font = `${height}pt ${font}`;
 
-    var bottom = height;
-    for (var i = bottom; i > 0; i -= step) {
+    let bottom = height;
+    for (let i = bottom; i > 0; i -= step) {
         ctx.fillText(str, width / 2, i, width);
 
         // every pixel in bottom row is blank
