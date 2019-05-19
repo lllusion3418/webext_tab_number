@@ -90,7 +90,8 @@ function fontDialogApply() {
     closeFontDialog();
 }
 
-function initSaveEvents(noReload) {
+async function initSaveEvents() {
+    const noReload = await supportsTabReset();
     const reloadMsg =
         "Extension reload necessary due to browser version.\n" +
         "Reload Page (F5) if formatting is messed up";
@@ -154,4 +155,4 @@ document.getElementById("fontDialogCancel").addEventListener("click", closeFontD
 document.getElementById("fontDialogApply").addEventListener("click", fontDialogApply);
 document.addEventListener("DOMContentLoaded", restoreSavedOptions);
 
-supportsTabReset().then(initSaveEvents);
+initSaveEvents();

@@ -3,6 +3,11 @@
     "version": "0.8.1.1",
     "name": "Tab Count Icon",
     "description": "Shows number of open tabs. DEV",
+    "browser_specific_settings": {
+        "gecko": {
+            "strict_min_version": "52.0"
+        }
+    },
     "permissions": [
         "tabs",
         "storage"

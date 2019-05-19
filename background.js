@@ -1,9 +1,13 @@
 /* globals getOptions, onError, supportsWindowId, supportsTabReset */
 "use strict";
-function main(options, useWindowId, doTabReset) {
+async function main() {
     /* eslint no-restricted-properties: ["error", {
         "property": "addListener",
     }] */
+    const options = await getOptions();
+    const useWindowId = await supportsWindowId();
+    const doTabReset = await supportsTabReset();
+
     let setText;
     let fontcfg;
 
@@ -43,7 +47,7 @@ function main(options, useWindowId, doTabReset) {
         if (doTabReset) {
             resetBadgeIconAll();
         }
-        removeListeners().then(run);
+        removeListeners().then(main);
     });
 
     function resetBadgeIconAll() {
@@ -232,14 +236,7 @@ function main(options, useWindowId, doTabReset) {
     }
 }
 
-function run() {
-    Promise.all([getOptions(), supportsWindowId(), supportsTabReset()]).then(
-        values => main.apply(null, values),
-        onError
-    );
-}
-
-run();
+main();
 
 /* draw centered text to canvas and return image data
  */
