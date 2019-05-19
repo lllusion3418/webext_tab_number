@@ -85,6 +85,7 @@ function fontDialogApply() {
     let font = font_families.join(", ");
 
     document.getElementById("iconFont").value = font;
+    browser.storage.local.set({"iconFont": font});
 
     closeFontDialog();
 }
