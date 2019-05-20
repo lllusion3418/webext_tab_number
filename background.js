@@ -162,7 +162,7 @@ async function main() {
                 }
             },
             onError
-        )
+        );
     }
 
     function updateBothTab() {
@@ -278,11 +278,11 @@ async function main() {
         if (useWindowId) {
             addListener(browser.tabs.onDetached, updateBoth);
             addListener(browser.tabs.onAttached, updateBoth);
-            addListener(browser.tabs.onCreated, tab => {
+            addListener(browser.tabs.onCreated, () => {
                 filterTab = null;
                 updateBoth();
             });
-            addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
+            addListener(browser.tabs.onRemoved, tabId => {
                 filterTab = tabId;
                 updateBoth();
             });
@@ -292,11 +292,11 @@ async function main() {
             addListener(browser.tabs.onActivated, updateBothTab);
             addListener(browser.tabs.onDetached, updateBothTab);
             addListener(browser.tabs.onAttached, updateBothTab);
-            addListener(browser.tabs.onCreated, tab => {
+            addListener(browser.tabs.onCreated, () => {
                 filterTab = null;
                 updateBothTab();
             });
-            addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
+            addListener(browser.tabs.onRemoved, tabId => {
                 filterTab = tabId;
                 updateBothTab();
             });

@@ -11,7 +11,7 @@ function restoreOptions(opt) {
         break;
     case "both":
         document.getElementById("scope_both").checked = true;
-        break
+        break;
     default:
         onError("invalid scope");
     }
@@ -59,8 +59,9 @@ function updateDisabled() {
     document.getElementById("iconMargin").disabled = !dm_icon;
     document.getElementById("openFontDialog").disabled = !dm_icon;
 
-    document.getElementById("scope_both").disabled = !dm_icon;
-    if (both && dm_badge) {
+    const both = document.getElementById("scope_both");
+    both.disabled = !dm_icon;
+    if (both.checked && dm_badge) {
         document.getElementById("scope_window").checked = true;
         browser.storage.local.set({"scope": "window"});
     }
