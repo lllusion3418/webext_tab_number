@@ -9,6 +9,9 @@ function restoreOptions(opt) {
     case "global":
         document.getElementById("scope_global").checked = true;
         break;
+    case "both":
+        document.getElementById("scope_both").checked = true;
+        break
     default:
         onError("invalid scope");
     }
@@ -32,7 +35,7 @@ function restoreOptions(opt) {
 
     document.getElementById("iconColor").value = opt.iconColor;
 
-    document.getElementById("iconFontMultiplier").value = opt.iconFontMultiplier;
+    document.getElementById("iconMargin").value = opt.iconMargin;
 
     ["dm_icon", "dm_badge"].forEach(i => {
         document.getElementById(i).addEventListener("change", updateDisabled);
@@ -53,8 +56,14 @@ function updateDisabled() {
     document.getElementById("iconDimension").disabled = !dm_icon;
     document.getElementById("iconFont").disabled = !dm_icon;
     document.getElementById("iconColor").disabled = !dm_icon;
-    document.getElementById("iconFontMultiplier").disabled = !dm_icon;
+    document.getElementById("iconMargin").disabled = !dm_icon;
     document.getElementById("openFontDialog").disabled = !dm_icon;
+
+    document.getElementById("scope_both").disabled = !dm_icon;
+    if (both && dm_badge) {
+        document.getElementById("scope_window").checked = true;
+        browser.storage.local.set({"scope": "window"});
+    }
 }
 
 function openFontDialog() {
@@ -145,8 +154,8 @@ async function initSaveEvents() {
     document.getElementById("iconColor").addEventListener("input", e => {
         browser.storage.local.set({"iconColor": e.target.value});
     });
-    document.getElementById("iconFontMultiplier").addEventListener("input", e => {
-        browser.storage.local.set({"iconFontMultiplier": parseFloat(e.target.value)});
+    document.getElementById("iconMargin").addEventListener("input", e => {
+        browser.storage.local.set({"iconMargin": parseFloat(e.target.value)});
     });
 }
 

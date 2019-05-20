@@ -13,7 +13,7 @@ var defaultOptions = {
     "iconDimension": 16, // in CSS px, refer https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/browser_action#Choosing_icon_sizes
     "iconFont": "sans-serif",
     "iconColor": "#000000",
-    "iconFontMultiplier": 0.9,
+    "iconMargin": 5, // percent of icon height - placed at top and bottom of icon and in between rows
 };
 
 function getOptions() {

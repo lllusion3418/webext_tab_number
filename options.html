@@ -12,6 +12,20 @@
         <ul>
             <li>
                 <div>
+                    Display Mode<br>
+                    <label>
+                        <input type="radio" name="displayMode" value="badge" id="dm_badge">
+                        Badge
+                    </label><br>
+                    <label>
+                        <input type="radio" name="displayMode" value="icon" id="dm_icon">
+                        Icon
+                    </label><br>
+                </div>
+            </li>
+
+            <li>
+                <div>
                     Tab Count Scope<br>
                     <label>
                         <input type="radio" name="scope" value="window" id="scope_window">
@@ -21,19 +35,9 @@
                         <input type="radio" name="scope" value="global" id="scope_global">
                         Global
                     </label><br>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    Display Mode<br>
                     <label>
-                        <input type="radio" name="displayMode" value="badge" id="dm_badge">
-                        Badge
-                    </label><br>
-                    <label>
-                        <input type="radio" name="displayMode" value="icon" id="dm_icon">
-                        Icon
+                        <input type="radio" name="scope" value="both" id="scope_both">
+                        Both
                     </label><br>
                 </div>
             </li>
@@ -78,8 +82,8 @@
             <li>
                 <div>
                     <label>
-                        Font Size Multiplier<br>
-                        <input type="number" id="iconFontMultiplier" step="0.05" min="0" max="1" disabled>
+                        Margin<br>
+                        <input type="number" id="iconMargin" step="2.5" min="0" max="50" disabled>%
                     </label>
                 </div>
             </li>

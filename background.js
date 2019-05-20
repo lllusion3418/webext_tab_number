@@ -1,9 +1,10 @@
-/* globals getOptions, onError, supportsWindowId, supportsTabReset */
+/* globals getOptions, onError, supportsWindowId, supportsTabReset, migrate */
 "use strict";
 async function main() {
     /* eslint no-restricted-properties: ["error", {
         "property": "addListener",
     }] */
+    await migrate();
     const options = await getOptions();
     const useWindowId = await supportsWindowId();
     const doTabReset = await supportsTabReset();
@@ -52,7 +53,7 @@ async function main() {
 
     function resetBadgeIconAll() {
         resetBadgeIcon(null);
-        if (options.scope !== "window") return;
+        if (options.scope === "global") return;
         if (useWindowId) {
             return browser.tabs.query({
                 active: true,
@@ -85,7 +86,7 @@ async function main() {
         tabsQueryFilter({
             "windowType": "normal",
         }).then(
-            tabs => setText(null, tabs.length.toString()),
+            tabs => setText(null, [tabs.length.toString()]),
             onError
         );
     }
@@ -104,7 +105,7 @@ async function main() {
             windowId: windowId,
         }).then(
             tabs => {
-                setText({windowId: windowId}, tabs.length.toString());
+                setText({windowId: windowId}, [tabs.length.toString()]);
             },
             onError
         );
@@ -116,7 +117,7 @@ async function main() {
         }).then(
             tabs => {
                 const active = tabs.filter(i => i.active)[0];
-                setText({tabId: active.id}, tabs.length.toString());
+                setText({tabId: active.id}, [tabs.length.toString()]);
             },
             onError
         );
@@ -135,13 +136,67 @@ async function main() {
         tabsQueryFilter({
             windowId: windowId,
         }).then(
-            tabs => setText({tabId: tabId}, tabs.length.toString()),
+            tabs => setText({tabId: tabId}, [tabs.length.toString()]),
+            onError
+        );
+    }
+
+    function updateBoth() {
+        tabsQueryFilter({}).then(
+            tabs => {
+                const total = tabs.length;
+                let counts = new Map();
+                for (let i of tabs) {
+                    if (counts.has(i.windowId)) {
+                        counts.set(i.windowId, counts.get(i.windowId) + 1);
+                    } else {
+                        counts.set(i.windowId, 1);
+                    }
+                }
+                if (counts.size === 1) {
+                    setText({windowId: tabs[0].windowId}, [total.toString()]);
+                    return;
+                }
+                for (let [i, n] of counts) {
+                    setText({windowId: i}, [n.toString(), total.toString()]);
+                }
+            },
+            onError
+        )
+    }
+
+    function updateBothTab() {
+        tabsQueryFilter({}).then(
+            tabs => {
+                const total = tabs.length;
+                let counts = new Map();
+                let actives = new Map();
+                for (let i of tabs) {
+                    if (counts.has(i.windowId)) {
+                        counts.set(i.windowId, counts.get(i.windowId) + 1);
+                    } else {
+                        counts.set(i.windowId, 1);
+                    }
+                    if (i.active) {
+                        actives.set(i.windowId, i.id);
+                    }
+                }
+                if (counts.size === 1) {
+                    const active = actives.values().next().value;
+                    setText({tabId: active}, [total.toString()]);
+                    return;
+                }
+                for (let [i, active] of actives) {
+                    const n = counts.get(i);
+                    setText({tabId: active}, [n.toString(), total.toString()]);
+                }
+            },
             onError
         );
     }
 
     function setTextBadge(spec, text) {
-        browser.browserAction.setBadgeText(Object.assign({text: text}, spec));
+        browser.browserAction.setBadgeText(Object.assign({text: text[0]}, spec));
     }
 
 
@@ -150,7 +205,7 @@ async function main() {
             text,
             options.iconDimension,
             options.iconDimension,
-            options.iconFontMultiplier,
+            options.iconMargin / 100,
             options.iconColor,
             fontcfg
         );
@@ -219,6 +274,40 @@ async function main() {
 
             updateActives();
         }
+    } else if (options.scope === "both") {
+        if (useWindowId) {
+            addListener(browser.tabs.onDetached, updateBoth);
+            addListener(browser.tabs.onAttached, updateBoth);
+            addListener(browser.tabs.onCreated, tab => {
+                filterTab = null;
+                updateBoth();
+            });
+            addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
+                filterTab = tabId;
+                updateBoth();
+            });
+
+            updateBoth();
+        } else {
+            addListener(browser.tabs.onActivated, updateBothTab);
+            addListener(browser.tabs.onDetached, updateBothTab);
+            addListener(browser.tabs.onAttached, updateBothTab);
+            addListener(browser.tabs.onCreated, tab => {
+                filterTab = null;
+                updateBothTab();
+            });
+            addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
+                filterTab = tabId;
+                updateBothTab();
+            });
+            addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                if ("url" in changeInfo && tab.active) {
+                    updateBothTab();
+                }
+            });
+
+            updateBothTab();
+        }
     } else if (options.scope === "global") {
         addListener(browser.tabs.onRemoved, tabId => {
             filterTab = tabId;
@@ -241,8 +330,10 @@ main();
 /* draw centered text to canvas and return image data
  */
 function drawTextCanvas(
-    text, width, height, fontSizeMultiplier, color, fontcfg
+    text, width, height, margin, color, fontcfg
 ) {
+    const totalMargins = (2 + text.length - 1) * margin;
+    const fontSizeMultiplier = (1 - totalMargins) / text.length;
     const fontSize = fontcfg.adjustedFontSize * fontSizeMultiplier;
     const c = document.createElement("canvas");
     c.width = width;
@@ -253,12 +344,14 @@ function drawTextCanvas(
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = color;
-    ctx.fillText(
-        text,
-        width / 2,
-        fontcfg.adjustedBottom * (1 + fontSizeMultiplier) / 2,
-        width
-    );
+    text.forEach((str, i) => {
+        ctx.fillText(
+            str,
+            width / 2,
+            fontcfg.adjustedBottom * (1 - (text.length - i) * margin - (text.length - i - 1) * fontSizeMultiplier),
+            width
+        );
+    });
     const data = ctx.getImageData(
         0, 0, width, height
     );
