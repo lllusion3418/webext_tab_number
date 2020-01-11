@@ -332,9 +332,10 @@ main();
 function drawTextCanvas(
     text, width, height, margin, color, fontcfg
 ) {
-    const totalMargins = (2 + text.length - 1) * margin;
-    const fontSizeMultiplier = (1 - totalMargins) / text.length;
-    const fontSize = fontcfg.adjustedFontSize * fontSizeMultiplier;
+    const marginCount = 1 + text.length; // one at the beginning and one after every line
+    const totalMargins = marginCount * margin;
+    const lineFrac = (1 - totalMargins) / text.length;
+    const fontSize = height * lineFrac * fontcfg.adjustedFontSize;
     const c = document.createElement("canvas");
     c.width = width;
     c.height = height;
@@ -345,10 +346,11 @@ function drawTextCanvas(
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = color;
     text.forEach((str, i) => {
+        const bottom = i * lineFrac + (i + 1) * margin + fontcfg.adjustedBottom * lineFrac;
         ctx.fillText(
             str,
             width / 2,
-            fontcfg.adjustedBottom * (1 - (text.length - i) * margin - (text.length - i - 1) * fontSizeMultiplier),
+            bottom * height,
             width
         );
     });
@@ -359,7 +361,7 @@ function drawTextCanvas(
 }
 
 
-/* find distance from top, such that text touches bottom of canvas
+/* find fraction of height from top, such that text touches bottom of canvas
  * textBaseline = "ideographic" doesn't do the right thing
  * assuming real bottom is underneath alphabetic baseline
  */
@@ -380,16 +382,18 @@ function getAdjustedBottom(font, str, height, step) {
 
         // every pixel in bottom row is blank
         if (ctx.getImageData(0, height - 1, width, 1).data.every(p => !p)) {
-            return bottom;
+            return bottom / height;
         }
         bottom = i;
         ctx.clearRect(0, 0, width, height);
     }
 }
 
-/* find font size in px, such that text touches top of canvas
+/* find fraction of height to use for font size in px, such that the text
+ * touches top of canvas
  */
-function getAdjustedFontSize(font, str, height, step, bottom) {
+function getAdjustedFontSize(font, str, height, step, adjBottom) {
+    const bottom = adjBottom * height;
     const canvas = document.createElement("canvas");
     canvas.height = height;
     const width = height * str.length * 2;
@@ -405,7 +409,7 @@ function getAdjustedFontSize(font, str, height, step, bottom) {
 
         // at least one pixel in top row is not blank
         if (ctx.getImageData(0, 0, width, 1).data.some(p => p)) {
-            return fontSize;
+            return fontSize / height;
         }
         ctx.clearRect(0, 0, width, height);
     }
