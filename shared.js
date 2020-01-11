@@ -3,7 +3,7 @@
 "use strict";
 
 var defaultOptions = {
-    "scope": "window", // "global" | "window"
+    "scope": "window", // "global" | "window" | "both"
     "displayMode": "icon", // "icon" | "badge"
 
     // if displayMode == "badge"
