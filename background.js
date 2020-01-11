@@ -12,17 +12,16 @@ async function main() {
     let setText;
     let fontcfg;
 
-    /* On Release 56.0 and Beta 57.0b6-1 browser.tabs.query still returns
-     * a closed tab if called in caused onRemoved and (possibly) onActivated
-     * events, resulting in a wrong tab count being displayed
-     * Nightly 58.0a1 (2017-10-06) doesn't exhibit this behavior
-     * Nightly 61.0a1 (2018-04-20) working
-     * Release 59.0.2 (64-bit)     not working
+    /* On some versions of Firefox the tab list returned by browser.tabs.query
+     * still contains some closed tabs in the resulting browser.tabs.onRemoved
+     * and browser.tabs.onActivated events
+     * when closing multiple tabs at once (e.g. by ctrl-selecting them) this
+     * may even result in the count being off by more than one
      */
-    let filterTab = null;
+    let filterTabs = [];
     const tabsQueryFilter = queryInfo => new Promise((resolve, reject) =>
         browser.tabs.query(queryInfo).then(
-            tabs => resolve(tabs.filter(i => i.id !== filterTab)),
+            tabs => resolve(tabs.filter(i => !filterTabs.includes(i.id))),
             reject
         )
     );
@@ -233,14 +232,14 @@ async function main() {
     if (options.scope === "window") {
         if (useWindowId) {
             addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
-                filterTab = tabId;
+                filterTabs.push(tabId);
                 updateWindow(removeInfo.windowId);
             });
             addListener(browser.tabs.onDetached, (_, detachInfo) =>
                 updateWindow(detachInfo.oldWindowId)
             );
             addListener(browser.tabs.onCreated, tab => {
-                filterTab = null;
+                filterTabs = [];
                 updateWindow(tab.windowId);
             });
             addListener(browser.tabs.onAttached, (_, attachInfo) =>
@@ -259,11 +258,11 @@ async function main() {
                 updateActive(attachInfo.newWindowId)
             );
             addListener(browser.tabs.onCreated, tab => {
-                filterTab = null;
+                filterTabs = [];
                 updateTab(tab.id, tab.windowId);
             });
             addListener(browser.tabs.onRemoved, (tabId, removeInfo) => {
-                filterTab = tabId;
+                filterTabs.push(tabId);
                 updateActive(removeInfo.windowId);
             });
             addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
@@ -279,11 +278,11 @@ async function main() {
             addListener(browser.tabs.onDetached, updateBoth);
             addListener(browser.tabs.onAttached, updateBoth);
             addListener(browser.tabs.onCreated, () => {
-                filterTab = null;
+                filterTabs = [];
                 updateBoth();
             });
             addListener(browser.tabs.onRemoved, tabId => {
-                filterTab = tabId;
+                filterTabs.push(tabId);
                 updateBoth();
             });
 
@@ -293,11 +292,11 @@ async function main() {
             addListener(browser.tabs.onDetached, updateBothTab);
             addListener(browser.tabs.onAttached, updateBothTab);
             addListener(browser.tabs.onCreated, () => {
-                filterTab = null;
+                filterTabs = [];
                 updateBothTab();
             });
             addListener(browser.tabs.onRemoved, tabId => {
-                filterTab = tabId;
+                filterTabs.push(tabId);
                 updateBothTab();
             });
             addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
@@ -310,11 +309,11 @@ async function main() {
         }
     } else if (options.scope === "global") {
         addListener(browser.tabs.onRemoved, tabId => {
-            filterTab = tabId;
+            filterTabs.push(tabId);
             updateGlobal();
         });
         addListener(browser.tabs.onCreated, () => {
-            filterTab = null;
+            filterTabs = [];
             updateGlobal();
         });
 
