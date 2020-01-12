@@ -33,29 +33,25 @@ function onError(error) {
  * browserAction.setBadgeText
  * Firefox version >= 62
  */
-function supportsWindowId() {
-    if (!browser.runtime.getBrowserInfo) return Promise.resolve(false);
-    return new Promise(resolve => {
-        browser.runtime.getBrowserInfo().then(
-            info => resolve(
-                info.name === "Firefox" && parseInt(info.version, 10) >= 62
-            ),
-            () => resolve(false)
-        );
-    });
+async function supportsWindowId() {
+    if (!browser.runtime.getBrowserInfo) return false;
+    try {
+        const info = await browser.runtime.getBrowserInfo();
+        return info.name === "Firefox" && parseInt(info.version, 10) >= 62;
+    } catch (e) {
+        return false;
+    }
 }
 
 /* Whether browserAction.setIcon and browserAction.setBadgeText support
  * resetting individual tabs icons/badges by passing `null`
  */
-function supportsTabReset() {
-    if (!browser.runtime.getBrowserInfo) return Promise.resolve(false);
-    return new Promise(resolve => {
-        browser.runtime.getBrowserInfo().then(
-            info => resolve(
-                info.name === "Firefox" && parseInt(info.version, 10) >= 59
-            ),
-            () => resolve(false)
-        );
-    });
+async function supportsTabReset() {
+    if (!browser.runtime.getBrowserInfo) return false;
+    try {
+        const info = await browser.runtime.getBrowserInfo();
+        return info.name === "Firefox" && parseInt(info.version, 10) >= 59;
+    } catch (e) {
+        return false;
+    }
 }

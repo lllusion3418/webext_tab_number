@@ -19,13 +19,10 @@ async function main() {
      * may even result in the count being off by more than one
      */
     let filterTabs = [];
-    const tabsQueryFilter = queryInfo => new Promise((resolve, reject) =>
-        browser.tabs.query(queryInfo).then(
-            tabs => resolve(tabs.filter(i => !filterTabs.includes(i.id))),
-            reject
-        )
-    );
-
+    async function tabsQueryFilter(queryInfo) {
+        const tabs = await browser.tabs.query(queryInfo);
+        return tabs.filter(i => !filterTabs.includes(i.id));
+    }
 
     let listeners = [];
     function addListener(event, listener) {
@@ -38,41 +35,38 @@ async function main() {
     }
 
     function removeListeners() {
-        return Promise.all(
-            listeners.map(i => i.event.removeListener(i.listener))
-        );
+        for (let i of listeners) {
+            i.event.removeListener(i.listener);
+        }
     }
 
-    addListener(browser.storage.onChanged, () => {
+    addListener(browser.storage.onChanged, async () => {
         if (doTabReset) {
-            resetBadgeIconAll();
+            await resetBadgeIconAll();
         }
-        removeListeners().then(main);
+        removeListeners();
+        main();
     });
 
-    function resetBadgeIconAll() {
+    async function resetBadgeIconAll() {
         resetBadgeIcon(null);
         if (options.scope === "global") return;
         if (useWindowId) {
-            return browser.tabs.query({
-                active: true,
-            }).then(tabs => tabs.forEach(i => {
-                resetBadgeIcon({windowId: i.windowId});
-            }));
+            const tabs = await browser.tabs.query({active: true});
+            await Promise.all(tabs.map(i => resetBadgeIcon({windowId: i.windowId})));
         } else {
-            return browser.tabs.query({}).then(tabs => tabs.forEach(i => {
-                resetBadgeIcon({tabId: i.id});
-            }));
+            const tabs = await browser.tabs.query({});
+            await Promise.all(tabs.map(i => resetBadgeIcon({tabId: i.id})));
         }
     }
 
-    function resetBadgeIcon(spec) {
+    async function resetBadgeIcon(spec) {
         if (options.displayMode === "badge") {
-            browser.browserAction.setBadgeText(
+            await browser.browserAction.setBadgeText(
                 Object.assign({text: null}, spec)
             );
         } else if (options.displayMode === "icon") {
-            browser.browserAction.setIcon(
+            await browser.browserAction.setIcon(
                 Object.assign({imageData: null}, spec)
             );
         } else {
@@ -81,125 +75,89 @@ async function main() {
         }
     }
 
-    function updateGlobal() {
-        tabsQueryFilter({
-            "windowType": "normal",
-        }).then(
-            tabs => setText(null, [tabs.length.toString()]),
-            onError
-        );
+    async function updateGlobal() {
+        const tabs = await tabsQueryFilter({windowType: "normal"});
+        await setText(null, [tabs.length.toString()]);
     }
 
-    function updateWindows() {
-        tabsQueryFilter({
-            active: true,
-        }).then(
-            tabs => tabs.forEach(i => updateWindow(i.windowId)),
-            onError
-        );
+    async function updateWindows() {
+        const tabs = await tabsQueryFilter({active: true});
+        await Promise.all(tabs.map(i => updateWindow(i.windowId)));
     }
 
-    function updateWindow(windowId) {
-        tabsQueryFilter({
-            windowId: windowId,
-        }).then(
-            tabs => {
-                setText({windowId: windowId}, [tabs.length.toString()]);
-            },
-            onError
-        );
+    async function updateWindow(windowId) {
+        const tabs = await tabsQueryFilter({windowId: windowId});
+        await setText({windowId: windowId}, [tabs.length.toString()]);
     }
 
-    function updateActive(windowId) {
-        tabsQueryFilter({
-            windowId: windowId,
-        }).then(
-            tabs => {
-                const active = tabs.filter(i => i.active)[0];
-                setText({tabId: active.id}, [tabs.length.toString()]);
-            },
-            onError
-        );
+    async function updateActive(windowId) {
+        const tabs = await tabsQueryFilter({windowId: windowId});
+        const active = tabs.filter(i => i.active)[0];
+        await setText({tabId: active.id}, [tabs.length.toString()]);
     }
 
-    function updateActives() {
-        tabsQueryFilter({
-            active: true,
-        }).then(
-            tabs => tabs.forEach(i => updateTab(i.id, i.windowId)),
-            onError
-        );
+    async function updateActives() {
+        const tabs = await tabsQueryFilter({active: true});
+        await Promise.all(tabs.map(i => updateTab(i.id, i.windowId)));
     }
 
-    function updateTab(tabId, windowId) {
-        tabsQueryFilter({
-            windowId: windowId,
-        }).then(
-            tabs => setText({tabId: tabId}, [tabs.length.toString()]),
-            onError
-        );
+    async function updateTab(tabId, windowId) {
+        const tabs = await tabsQueryFilter({windowId: windowId});
+        await setText({tabId: tabId}, [tabs.length.toString()]);
     }
 
-    function updateBoth() {
-        tabsQueryFilter({}).then(
-            tabs => {
-                const total = tabs.length;
-                let counts = new Map();
-                for (let i of tabs) {
-                    if (counts.has(i.windowId)) {
-                        counts.set(i.windowId, counts.get(i.windowId) + 1);
-                    } else {
-                        counts.set(i.windowId, 1);
-                    }
-                }
-                if (counts.size === 1) {
-                    setText({windowId: tabs[0].windowId}, [total.toString()]);
-                    return;
-                }
-                for (let [i, n] of counts) {
-                    setText({windowId: i}, [n.toString(), total.toString()]);
-                }
-            },
-            onError
-        );
+    async function updateBoth() {
+        const tabs = await tabsQueryFilter({});
+        const total = tabs.length;
+        let counts = new Map();
+        for (let i of tabs) {
+            if (counts.has(i.windowId)) {
+                counts.set(i.windowId, counts.get(i.windowId) + 1);
+            } else {
+                counts.set(i.windowId, 1);
+            }
+        }
+        if (counts.size === 1) {
+            await setText({windowId: tabs[0].windowId}, [total.toString()]);
+            return;
+        }
+        for (let [i, n] of counts) {
+            await setText({windowId: i}, [n.toString(), total.toString()]);
+        }
     }
 
-    function updateBothTab() {
-        tabsQueryFilter({}).then(
-            tabs => {
-                const total = tabs.length;
-                let counts = new Map();
-                let actives = new Map();
-                for (let i of tabs) {
-                    if (counts.has(i.windowId)) {
-                        counts.set(i.windowId, counts.get(i.windowId) + 1);
-                    } else {
-                        counts.set(i.windowId, 1);
-                    }
-                    if (i.active) {
-                        actives.set(i.windowId, i.id);
-                    }
-                }
-                if (counts.size === 1) {
-                    const active = actives.values().next().value;
-                    setText({tabId: active}, [total.toString()]);
-                    return;
-                }
-                for (let [i, active] of actives) {
-                    const n = counts.get(i);
-                    setText({tabId: active}, [n.toString(), total.toString()]);
-                }
-            },
-            onError
-        );
+    async function updateBothTab() {
+        const tabs = await tabsQueryFilter({});
+        const total = tabs.length;
+        let counts = new Map();
+        let actives = new Map();
+        for (let i of tabs) {
+            if (counts.has(i.windowId)) {
+                counts.set(i.windowId, counts.get(i.windowId) + 1);
+            } else {
+                counts.set(i.windowId, 1);
+            }
+            if (i.active) {
+                actives.set(i.windowId, i.id);
+            }
+        }
+        if (counts.size === 1) {
+            const active = actives.values().next().value;
+            await setText({tabId: active}, [total.toString()]);
+            return;
+        }
+        for (let [i, active] of actives) {
+            const n = counts.get(i);
+            await setText({tabId: active}, [n.toString(), total.toString()]);
+        }
     }
 
-    function setTextBadge(spec, text) {
-        browser.browserAction.setBadgeText(Object.assign({text: text[0]}, spec));
+    async function setTextBadge(spec, text) {
+        await browser.browserAction.setBadgeText(Object.assign({text: text[0]}, spec));
     }
 
 
-    function setTextIcon(spec, text) {
+    async function setTextIcon(spec, text) {
         const data = drawTextCanvas(
             text,
             options.iconDimension,
@@ -208,18 +166,18 @@ async function main() {
             options.iconColor,
             fontcfg
         );
-        browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
+        await browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
     }
 
     if (options.displayMode === "badge") {
         setText = setTextBadge;
-        browser.browserAction.setBadgeBackgroundColor({color:options.badgeBg});
+        await browser.browserAction.setBadgeBackgroundColor({color:options.badgeBg});
     } else if (options.displayMode === "icon") {
         setText = setTextIcon;
         /* completely transparent image looks better than the default icon flashing
          * for < 1s when switching to previously unset tab
          */
-        browser.browserAction.setIcon({
+        await browser.browserAction.setIcon({
             imageData: new ImageData(options.iconDimension, options.iconDimension),
         });
 
