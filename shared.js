@@ -1,4 +1,3 @@
-/* global defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer, supportsActualBoundingBoxes */
 /* exported defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer, supportsActualBoundingBoxes */
 "use strict";
 

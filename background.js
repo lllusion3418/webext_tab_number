@@ -63,11 +63,11 @@ async function main() {
     async function resetBadgeIcon(spec) {
         if (options.displayMode === "badge") {
             await browser.browserAction.setBadgeText(
-                Object.assign({text: null}, spec)
+                Object.assign({text: null}, spec),
             );
         } else if (options.displayMode === "icon") {
             await browser.browserAction.setIcon(
-                Object.assign({imageData: null}, spec)
+                Object.assign({imageData: null}, spec),
             );
         } else {
             onError("invalid displayMode");
@@ -186,28 +186,28 @@ async function main() {
                 filterTabs.push(tabId);
                 updateWindow(removeInfo.windowId);
             });
-            addListener(browser.tabs.onDetached, (_, detachInfo) =>
-                updateWindow(detachInfo.oldWindowId)
-            );
+            addListener(browser.tabs.onDetached, (_, detachInfo) => {
+                updateWindow(detachInfo.oldWindowId);
+            });
             addListener(browser.tabs.onCreated, tab => {
                 filterTabs = [];
                 updateWindow(tab.windowId);
             });
-            addListener(browser.tabs.onAttached, (_, attachInfo) =>
-                updateWindow(attachInfo.newWindowId)
-            );
+            addListener(browser.tabs.onAttached, (_, attachInfo) => {
+                updateWindow(attachInfo.newWindowId);
+            });
 
             updateWindows();
         } else {
-            addListener(browser.tabs.onActivated, activeInfo =>
-                updateTab(activeInfo.tabId, activeInfo.windowId)
-            );
-            addListener(browser.tabs.onDetached, (_, detachInfo) =>
-                updateActive(detachInfo.oldWindowId)
-            );
-            addListener(browser.tabs.onAttached, (_, attachInfo) =>
-                updateActive(attachInfo.newWindowId)
-            );
+            addListener(browser.tabs.onActivated, activeInfo => {
+                updateTab(activeInfo.tabId, activeInfo.windowId);
+            });
+            addListener(browser.tabs.onDetached, (_, detachInfo) =>{
+                updateActive(detachInfo.oldWindowId);
+            });
+            addListener(browser.tabs.onAttached, (_, attachInfo) =>{
+                updateActive(attachInfo.newWindowId);
+            });
             addListener(browser.tabs.onCreated, tab => {
                 filterTabs = [];
                 updateTab(tab.id, tab.windowId);

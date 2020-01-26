@@ -78,7 +78,7 @@ function closeFontDialog() {
 function fontDialogApply() {
     const font_name = document.getElementById("fontName").value;
     let font_family = document.querySelector(
-        "input[name='font-family']:checked"
+        "input[name='font-family']:checked",
     );
 
     let font_families = [];
@@ -129,7 +129,7 @@ async function initSaveEvents() {
             let reload = false;
             if (!noReload) {
                 const ok = window.confirm(
-                    reloadMsg
+                    reloadMsg,
                 );
                 if (!ok) {
                     restoreSavedOptions();
