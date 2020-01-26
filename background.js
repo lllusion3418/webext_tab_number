@@ -1,4 +1,4 @@
-/* globals getOptions, onError, supportsWindowId, supportsTabReset, migrate */
+/* globals getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer, migrate */
 "use strict";
 async function main() {
     /* eslint no-restricted-properties: ["error", {
@@ -10,7 +10,7 @@ async function main() {
     const doTabReset = await supportsTabReset();
 
     let setText;
-    let fontcfg;
+    let drawer;
 
     /* On some versions of Firefox the tab list returned by browser.tabs.query
      * still contains some closed tabs in the resulting browser.tabs.onRemoved
@@ -158,14 +158,7 @@ async function main() {
 
 
     async function setTextIcon(spec, text) {
-        const data = drawTextCanvas(
-            text,
-            options.iconDimension,
-            options.iconDimension,
-            options.iconMargin / 100,
-            options.iconColor,
-            fontcfg
-        );
+        const data = drawer.draw(text, options.iconMargin / 100, options.iconColor);
         await browser.browserAction.setIcon(Object.assign({imageData: data}, spec));
     }
 
@@ -181,7 +174,7 @@ async function main() {
             imageData: new ImageData(options.iconDimension, options.iconDimension),
         });
 
-        fontcfg = getFontcfg(options.iconFont, options.iconDimension, "0123456789", 1);
+        drawer = new IconDrawer("0123456789", options.iconFont, options.iconDimension, options.iconDimension);
     } else {
         onError("invalid displayMode");
         return;
@@ -283,101 +276,3 @@ async function main() {
 }
 
 main();
-
-/* draw centered text to canvas and return image data
- */
-function drawTextCanvas(
-    text, width, height, margin, color, fontcfg
-) {
-    const marginCount = 1 + text.length; // one at the beginning and one after every line
-    const totalMargins = marginCount * margin;
-    const lineFrac = (1 - totalMargins) / text.length;
-    const fontSize = height * lineFrac * fontcfg.adjustedFontSize;
-    const c = document.createElement("canvas");
-    c.width = width;
-    c.height = height;
-    const ctx = c.getContext("2d");
-
-    ctx.font = `${fontSize}px ${fontcfg.font}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = color;
-    text.forEach((str, i) => {
-        const bottom = i * lineFrac + (i + 1) * margin + fontcfg.adjustedBottom * lineFrac;
-        ctx.fillText(
-            str,
-            width / 2,
-            bottom * height,
-            width
-        );
-    });
-    const data = ctx.getImageData(
-        0, 0, width, height
-    );
-    return data;
-}
-
-
-/* find fraction of height from top, such that text touches bottom of canvas
- * textBaseline = "ideographic" doesn't do the right thing
- * assuming real bottom is underneath alphabetic baseline
- */
-function getAdjustedBottom(font, str, height, step) {
-    const canvas = document.createElement("canvas");
-    canvas.height = height;
-    const width = height * str.length * 2;
-    canvas.width = width;
-    const ctx = canvas.getContext("2d");
-    ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
-
-    ctx.font = `${height}pt ${font}`;
-
-    let bottom = height;
-    for (let i = bottom; i > 0; i -= step) {
-        ctx.fillText(str, width / 2, i, width);
-
-        // every pixel in bottom row is blank
-        if (ctx.getImageData(0, height - 1, width, 1).data.every(p => !p)) {
-            return bottom / height;
-        }
-        bottom = i;
-        ctx.clearRect(0, 0, width, height);
-    }
-}
-
-/* find fraction of height to use for font size in px, such that the text
- * touches top of canvas
- */
-function getAdjustedFontSize(font, str, height, step, adjBottom) {
-    const bottom = adjBottom * height;
-    const canvas = document.createElement("canvas");
-    canvas.height = height;
-    const width = height * str.length * 2;
-    canvas.width = width;
-    const ctx = canvas.getContext("2d");
-    ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
-
-    const max = height * 2;
-    for (let fontSize = 1; fontSize < max; fontSize += step) {
-        ctx.font = `${fontSize}px ${font}`;
-        ctx.fillText(str, width / 2, bottom, width);
-
-        // at least one pixel in top row is not blank
-        if (ctx.getImageData(0, 0, width, 1).data.some(p => p)) {
-            return fontSize / height;
-        }
-        ctx.clearRect(0, 0, width, height);
-    }
-}
-
-function getFontcfg(font, height, str, step) {
-    const adjustedBottom = getAdjustedBottom(font, str, height, step);
-    const adjustedFontSize = getAdjustedFontSize(font, str, height, step, adjustedBottom);
-    return {
-        font: font,
-        adjustedBottom: adjustedBottom,
-        adjustedFontSize: adjustedFontSize,
-    };
-}
