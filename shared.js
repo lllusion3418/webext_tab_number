@@ -1,5 +1,5 @@
-/* global defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer */
-/* exported defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer */
+/* global defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer, supportsActualBoundingBoxes */
+/* exported defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, IconDrawer, supportsActualBoundingBoxes */
 "use strict";
 
 var defaultOptions = {
@@ -57,6 +57,25 @@ async function supportsTabReset() {
 }
 
 /*
+ * Tests whether the TextMetrics.actualBoundingBoxAscent and
+ * TextMetrics.actualBoundingBoxDescent attributes are supported
+ * The attributes may be present but with value NaN if unsupported
+ */
+function supportsActualBoundingBoxes() {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const metrics = ctx.measureText("foo");
+    return (
+        "actualBoundingBoxAscent" in metrics
+        && typeof metrics.actualBoundingBoxAscent === "number"
+        && !isNaN(metrics.actualBoundingBoxAscent)
+        && "actualBoundingBoxDescent" in metrics
+        && typeof metrics.actualBoundingBoxDescent === "number"
+        && !isNaN(metrics.actualBoundingBoxDescent)
+    );
+}
+
+/*
  * draw text in a canvas such that they fit exactly in a given line height
  * i.e. they touch but don't cross over top and bottom
  * to this end for any given line height some adjustment values are
@@ -83,6 +102,16 @@ async function supportsTabReset() {
  *   most are at 2-3% lineHeight
  *   if performance is a concern, this could be lowered a bit
  *   (maybe 0.2 * lineHeight)
+ *
+ * two ways of determining those values are implemented:
+ * - one where the values are tested with CanvasRenderingContext2D.fillText()
+ *   and the lines counted using CanvasRenderingContext2D.getImageData()
+ * - and one where CanvasRenderingContext2D.measureText() is used
+ *   and the values are determined from TextMetrics.actualBoundingBoxAscent
+ *   and TextMetrics.actualBoundingBoxDescent
+ *   the implementation of those attributes is set to arrive in Firefox 74 and
+ *   is currently in Nightly
+ *   (https://bugzilla.mozilla.org/show_bug.cgi?id=1102584)
  */
 class IconDrawer {
     constructor(charset, font, width, height) {
@@ -92,9 +121,10 @@ class IconDrawer {
         this.height = height;
 
         this.configsCache = new Map();
+        this.useTextMetrics = supportsActualBoundingBoxes();
     }
 
-    makeConfig(size) {
+    makeConfigTested(size) {
         const canvas = document.createElement("canvas");
         const height = 3 * size;
         // even if this somehow wasn't wide enought, the `maxWidth` parameter
@@ -136,6 +166,35 @@ class IconDrawer {
         }
         const bottomAdjustment = lastFilledRow - bottom + 1;
         return {bottomAdjustment, fontSize};
+    }
+
+    makeConfigMetrics(size) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        let bottomAdjustment;
+        let fontSize;
+
+        for (let fs = size; fs < (2 * size); fs++) {
+            ctx.font = `${fs}px ${this.font}`;
+            const metrics = ctx.measureText(this.charset);
+            const ascent = metrics.actualBoundingBoxAscent;
+            const descent = metrics.actualBoundingBoxDescent;
+            const currentSize = ascent + descent;
+            if (currentSize === size) {
+                fontSize = fs;
+                break;
+            }
+            if (currentSize > size) {
+                fontSize = fs - 1;
+                break;
+            }
+            bottomAdjustment = descent;
+        }
+        return {bottomAdjustment, fontSize};
+    }
+
+    makeConfig(size) {
+        return this.useTextMetrics ? this.makeConfigMetrics(size) : this.makeConfigTested(size);
     }
 
     getConfig(size) {
