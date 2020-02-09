@@ -40,7 +40,37 @@ async function main() {
         }
     }
 
-    addListener(browser.storage.onChanged, async () => {
+    addListener(browser.storage.onChanged, async (changes) => {
+        let needsReset = false;
+        let reinitializeCounters = false;
+        for (let i in changes) {
+            switch (i) {
+                case "iconDimension":
+                case "iconFont":
+                    options[i] = changes[i].newValue;
+                    drawer = new IconDrawer("0123456789", options.iconFont, options.iconDimension, options.iconDimension);
+                    reinitializeCounters = true;
+                    break;
+                case "badgeBg":
+                    options[i] = changes[i].newValue;
+                    browser.browserAction.setBadgeBackgroundColor({color: options.badgeBg});
+                    break;
+                case "iconColor":
+                case "iconMargin":
+                    options[i] = changes[i].newValue;
+                    reinitializeCounters = true;
+                    break;
+                default:
+                    needsReset = true;
+                    break;
+            }
+        }
+        if (!needsReset) {
+            if (reinitializeCounters) {
+                initializeCounters();
+            }
+            return;
+        }
         if (doTabReset) {
             await resetBadgeIconAll();
         }
@@ -149,6 +179,26 @@ async function main() {
         for (let [i, active] of actives) {
             const n = counts.get(i);
             await setText({tabId: active}, [n.toString(), total.toString()]);
+        }
+    }
+
+    async function initializeCounters() {
+        if (options.scope === "window") {
+            if (useWindowId) {
+                updateWindows();
+            } else {
+                updateActives();
+            }
+        } else if (options.scope === "both") {
+            if (useWindowId) {
+                updateBoth();
+            } else {
+                updateBothTab();
+            }
+        } else if (options.scope === "global") {
+            updateGlobal();
+        } else {
+            onError("invalid scope");
         }
     }
 
