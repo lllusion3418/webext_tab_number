@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "version": "0.10",
+    "version": "0.11",
     "name": "Tab Count Icon",
     "description": "Shows number of open tabs. DEV",
     "browser_specific_settings": {
