@@ -3,28 +3,28 @@
 
 function restoreOptions(opt) {
     switch (opt.scope) {
-    case "window":
-        document.getElementById("scope_window").checked = true;
-        break;
-    case "global":
-        document.getElementById("scope_global").checked = true;
-        break;
-    case "both":
-        document.getElementById("scope_both").checked = true;
-        break;
-    default:
-        onError("invalid scope");
+        case "window":
+            document.getElementById("scope_window").checked = true;
+            break;
+        case "global":
+            document.getElementById("scope_global").checked = true;
+            break;
+        case "both":
+            document.getElementById("scope_both").checked = true;
+            break;
+        default:
+            onError("invalid scope");
     }
 
     switch (opt.displayMode) {
-    case "icon":
-        document.getElementById("dm_icon").checked = true;
-        break;
-    case "badge":
-        document.getElementById("dm_badge").checked = true;
-        break;
-    default:
-        onError("invalid displayMode");
+        case "icon":
+            document.getElementById("dm_icon").checked = true;
+            break;
+        case "badge":
+            document.getElementById("dm_badge").checked = true;
+            break;
+        default:
+            onError("invalid displayMode");
     }
 
     document.getElementById("badgeBg").value = opt.badgeBg;
