@@ -51,13 +51,9 @@ function updateDisabled() {
     const dm_icon = document.getElementById("dm_icon").checked;
     const dm_badge = document.getElementById("dm_badge").checked;
 
-    document.getElementById("badgeBg").disabled = !dm_badge;
+    document.getElementById("badge-appearance").disabled = !dm_badge;
 
-    document.getElementById("iconDimension").disabled = !dm_icon;
-    document.getElementById("iconFont").disabled = !dm_icon;
-    document.getElementById("iconColor").disabled = !dm_icon;
-    document.getElementById("iconMargin").disabled = !dm_icon;
-    document.getElementById("openFontDialog").disabled = !dm_icon;
+    document.getElementById("icon-appearance").disabled = !dm_icon;
 
     const both = document.getElementById("scope_both");
     both.disabled = !dm_icon;

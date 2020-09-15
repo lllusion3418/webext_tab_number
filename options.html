@@ -9,115 +9,111 @@
 
 <body>
     <form>
-        <ul>
-            <li>
-                <div>
-                    Display Mode<br>
-                    <label>
-                        <input type="radio" name="displayMode" value="badge" id="dm_badge">
-                        Badge
-                    </label><br>
-                    <label>
-                        <input type="radio" name="displayMode" value="icon" id="dm_icon">
-                        Icon
-                    </label><br>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    Tab Count Scope<br>
-                    <label>
-                        <input type="radio" name="scope" value="window" id="scope_window">
-                        Per Window
-                    </label></br>
-                    <label>
-                        <input type="radio" name="scope" value="global" id="scope_global">
-                        Global
-                    </label><br>
-                    <label>
-                        <input type="radio" name="scope" value="both" id="scope_both">
-                        Both
-                    </label><br>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    <label>
-                        Badge Background Color<br>
-                        <input type="color" id="badgeBg" disabled>
-                    </label>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    <label>
-                        Icon Size (in CSS pixels, refer to <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/browser_action#Choosing_icon_sizes">MDN</a>)<br>
-                        <input type="number" id="iconDimension" step="8" min="8" disabled>
-                    </label>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    <label>
-                        Icon Font (<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font">CanvasRenderingContext2D.font</a> after fontSize)<br>
-                        <input type="text" id="iconFont" disabled><br>
-                        <button id="openFontDialog" type="button" disabled>Helper</button>
-                    </label>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    <label>
-                        Icon Color<br>
-                        <input type="color" id="iconColor" disabled>
-                    </label>
-                </div>
-            </li>
-
-            <li>
-                <div>
-                    <label>
-                        Margin<br>
-                        <input type="number" id="iconMargin" step="2.5" min="0" max="50" disabled>%
-                    </label>
-                </div>
-            </li>
-        </ul>
+        <fieldset>
+            <legend>Display Mode</legend>
+            <div>
+                <label>
+                    <input type="radio" name="displayMode" value="icon" id="dm_icon">
+                    Icon
+                </label>
+            </div>
+            <div>
+                <label>
+                    <input type="radio" name="displayMode" value="badge" id="dm_badge">
+                    Badge
+                </label>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Tab Count Scope</legend>
+            <div>
+                <label>
+                    <input type="radio" name="scope" value="window" id="scope_window">
+                    Per Window
+                </label>
+            </div>
+            <div>
+                <label>
+                    <input type="radio" name="scope" value="global" id="scope_global">
+                    Global
+                </label>
+            </div>
+            <div>
+                <label>
+                    <input type="radio" name="scope" value="both" id="scope_both" disabled>
+                    Both
+                </label>
+            </div>
+        </fieldset>
+        <fieldset id="icon-appearance" disabled>
+            <legend>Icon Appearance</legend>
+            <div>
+                <label>
+                    Size:
+                    <input type="number" id="iconDimension" step="8" min="8"> CSS pixels
+                </label>
+            </div>
+            <div>
+                <label>
+                    Margin:
+                    <input type="number" id="iconMargin" step="2.5" min="0" max="50">%
+                </label>
+            </div>
+            <div>
+                <label>
+                    Color:
+                    <input type="color" id="iconColor">
+                </label>
+            </div>
+            <div>
+                <label>
+                    Font:
+                    <input type="text" id="iconFont">
+                    <button id="openFontDialog" type="button">Helper</button>
+                </label>
+            </div>
+        </fieldset>
+        <fieldset id="badge-appearance" disabled>
+            <legend>Badge appearance</legend>
+            <div>
+                <label>
+                    Background color:
+                    <input type="color" id="badgeBg">
+                </label>
+            </div>
+        </fieldset>
     </form>
 
     <div id="fontDialog" class="overlay">
         <form>
-            <ul>
-                <li>
+            <div>
+                <label>
+                    Font name (optional):
+                    <input type="text" id="fontName">
+                </label>
+            </div>
+            <fieldset>
+                <legend>Font-family</legend>
+                The system default for the selected font-family is used as a fallback if font name not specified or invalid
+                <div>
                     <label>
-                        font name (optional)
-                        <input type="text" id="fontName">
+                        <input type="radio" name="font-family" value="serif" id="font-family_serif">
+                        serif
                     </label>
-                </li>
-                <li>
-                    <div>
-                        font-family<br>
-                        (uses system default for selected font-family as a fallback if font name not specified or invalid)<br>
-                        <label>
-                            <input type="radio" name="font-family" value="serif" id="font-family_serif">
-                            serif
-                        </label></br>
-                        <label>
-                            <input type="radio" name="font-family" value="sans-serif" id="font-family_sans-serif" checked>
-                            sans-serif
-                        </label><br>
-                        <label>
-                            <input type="radio" name="font-family" value="monospace" id="font-family_monospace">
-                            monospace
-                        </label><br>
-                    </div>
-                </li>
-            </ul>
+                </div>
+                <div>
+                    <label>
+                        <input type="radio" name="font-family" value="sans-serif" id="font-family_sans-serif" checked>
+                        sans-serif
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="radio" name="font-family" value="monospace" id="font-family_monospace">
+                        monospace
+                    </label>
+                </div>
+            </fieldset>
             <div>
                 <button id="fontDialogCancel" type="button">Cancel</button>
                 <button id="fontDialogApply" type="button">Apply</button>
