@@ -65,6 +65,9 @@ async function supportsTabReset() {
  * Tests whether the TextMetrics.actualBoundingBoxAscent and
  * TextMetrics.actualBoundingBoxDescent attributes are supported
  * The attributes may be present but with value NaN if unsupported
+ *
+ * Supported in Firefox since v74:
+ * https://bugzilla.mozilla.org/show_bug.cgi?id=1102584
  */
 function supportsActualBoundingBoxes() {
     const canvas = document.createElement("canvas");
@@ -96,7 +99,7 @@ function supportsActualBoundingBoxes() {
  * of each fontSize and bottomAdjustment)
  * when using draw() only characters in charset should be used
  *
- * some assumtions are made:
+ * some assumptions are made:
  * - the fontSize is always between lineHeight and 2 * lineHeight
  *   For all fonts I've tested it's between 1.27 * lineHeight
  *   and 1.58 * lineHeight
@@ -114,19 +117,16 @@ function supportsActualBoundingBoxes() {
  * - and one where CanvasRenderingContext2D.measureText() is used
  *   and the values are determined from TextMetrics.actualBoundingBoxAscent
  *   and TextMetrics.actualBoundingBoxDescent
- *   the implementation of those attributes is set to arrive in Firefox 74 and
- *   is currently in Nightly
- *   (https://bugzilla.mozilla.org/show_bug.cgi?id=1102584)
  */
 class IconDrawer {
-    constructor(charset, font, width, height) {
+    constructor(charset, font, width, height, useTextMetrics = supportsActualBoundingBoxes()) {
         this.charset = charset;
         this.font = font;
         this.width = width;
         this.height = height;
+        this.useTextMetrics = useTextMetrics;
 
         this.configsCache = new Map();
-        this.useTextMetrics = supportsActualBoundingBoxes();
     }
 
     makeConfigTested(size) {
@@ -185,6 +185,8 @@ class IconDrawer {
             const ascent = metrics.actualBoundingBoxAscent;
             const descent = metrics.actualBoundingBoxDescent;
             const currentSize = ascent + descent;
+
+            bottomAdjustment = descent;
             if (currentSize === size) {
                 fontSize = fs;
                 break;
@@ -193,7 +195,6 @@ class IconDrawer {
                 fontSize = fs - 1;
                 break;
             }
-            bottomAdjustment = descent;
         }
         return {bottomAdjustment, fontSize};
     }
@@ -212,11 +213,11 @@ class IconDrawer {
         return config;
     }
 
-    draw(text, margin, color) {
-        const marginCount = 1 + text.length; // one at the beginning and one after every line
+    draw(lines, margin, color) {
+        const marginCount = 1 + lines.length; // one at the beginning and one after every line
         const marginSize = margin * this.height;
         const totalMargins = marginCount * marginSize;
-        const lineHeight = (this.height - totalMargins) / text.length;
+        const lineHeight = (this.height - totalMargins) / lines.length;
         const {bottomAdjustment, fontSize} = this.getConfig(lineHeight);
 
         const canvas = document.createElement("canvas");
@@ -227,7 +228,7 @@ class IconDrawer {
         ctx.font = `${fontSize}px ${this.font}`;
         ctx.textAlign = "center";
         ctx.fillStyle = color;
-        text.forEach((str, i) => {
+        lines.forEach((str, i) => {
             const bottom = (i + 1) * (marginSize + lineHeight) - bottomAdjustment;
             ctx.fillText(str, this.width / 2, bottom, this.width);
         });
