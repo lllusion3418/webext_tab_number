@@ -48,7 +48,12 @@ async function main() {
                 case "iconDimension":
                 case "iconFont":
                     options[i] = changes[i].newValue;
-                    drawer = new IconDrawer("0123456789", options.iconFont, options.iconDimension, options.iconDimension);
+                    drawer = new IconDrawer(
+                        "0123456789",
+                        options.iconFont,
+                        options.iconDimension,
+                        options.iconDimension,
+                    );
                     reinitializeCounters = true;
                     break;
                 case "badgeBg":
@@ -224,7 +229,12 @@ async function main() {
             imageData: new ImageData(options.iconDimension, options.iconDimension),
         });
 
-        drawer = new IconDrawer("0123456789", options.iconFont, options.iconDimension, options.iconDimension);
+        drawer = new IconDrawer(
+            "0123456789",
+            options.iconFont,
+            options.iconDimension,
+            options.iconDimension,
+        );
     } else {
         onError("invalid displayMode");
         return;

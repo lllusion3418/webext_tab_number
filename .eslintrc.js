@@ -80,5 +80,12 @@ module.exports = {
         "eol-last": [
             "error",
         ],
+        "max-len": [
+            "error",
+            {
+                "code": 100,
+                "ignoreUrls": true,
+            },
+        ],
     },
 };
