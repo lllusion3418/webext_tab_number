@@ -163,6 +163,8 @@ async function initSaveEvents() {
 document.getElementById("openFontDialog").addEventListener("click", openFontDialog);
 document.getElementById("fontDialogCancel").addEventListener("click", closeFontDialog);
 document.getElementById("fontDialogApply").addEventListener("click", fontDialogApply);
-document.addEventListener("DOMContentLoaded", restoreSavedOptions);
 
+document.getElementById("settings-new-page").href = browser.runtime.getURL("options.html")
+
+restoreSavedOptions();
 initSaveEvents();
