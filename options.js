@@ -146,7 +146,11 @@ async function initSaveEvents() {
         browser.storage.local.set({"iconDimension": parseInt(e.target.value, 10)});
     });
     document.getElementById("iconFont").addEventListener("input", e => {
-        browser.storage.local.set({"iconFont": e.target.value});
+        if (e.target.validity.valid) {
+            browser.storage.local.set({"iconFont": e.target.value});
+        } else {
+            browser.storage.local.remove("iconFont");
+        }
     });
     document.getElementById("iconColor").addEventListener("input", e => {
         browser.storage.local.set({"iconColor": e.target.value});
