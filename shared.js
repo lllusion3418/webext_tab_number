@@ -1,4 +1,4 @@
-/* exported defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset */
+/* exported defaultOptions, getOptions, onError, supportsWindowId, supportsTabReset, supportsHiddenTabs, supportsOnUpdatedExtra */
 "use strict";
 
 var defaultOptions = {
@@ -53,6 +53,37 @@ async function supportsTabReset() {
     try {
         const info = await browser.runtime.getBrowserInfo();
         return info.name === "Firefox" && parseInt(info.version, 10) >= 59;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* Whether the browser supports hidden tabs (e.g. used by Simple Tab Groups)
+ * on https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/Tab
+ * it's not mentioned when the Tab.hidden property was added but on
+ * https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/hide
+ * it says that tabs.hide() was added in Firefox 61 which is presumably the same version the
+ * corresponding property was added
+ */
+async function supportsHiddenTabs() {
+    if (!browser.runtime.getBrowserInfo) return false;
+    try {
+        const info = await browser.runtime.getBrowserInfo();
+        return info.name === "Firefox" && parseInt(info.version, 10) >= 61;
+    } catch (e) {
+        return false;
+    }
+}
+
+/* Whether the browser supports the extraParametersOptional parameter to
+ * tabs.onUpdated.addListener
+ * https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onUpdated
+ */
+async function supportsOnUpdatedExtra() {
+    if (!browser.runtime.getBrowserInfo) return false;
+    try {
+        const info = await browser.runtime.getBrowserInfo();
+        return info.name === "Firefox" && parseInt(info.version, 10) >= 61;
     } catch (e) {
         return false;
     }

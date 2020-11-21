@@ -8,6 +8,8 @@ async function main() {
     const options = await getOptions();
     const useWindowId = await supportsWindowId();
     const doTabReset = await supportsTabReset();
+    const excludeHiddenTabs = await supportsHiddenTabs();
+    const useOnUpdatedExtra = await supportsOnUpdatedExtra();
 
     let setText;
     let drawer;
@@ -19,19 +21,22 @@ async function main() {
      * may even result in the count being off by more than one
      */
     let filterTabs = [];
-    async function tabsQueryFilter(queryInfo) {
+    async function tabsQueryFilter(queryInfo, try_exclude_hidden = true) {
+        if (try_exclude_hidden && excludeHiddenTabs) {
+            queryInfo = Object.assign({hidden: false}, queryInfo);
+        }
         const tabs = await browser.tabs.query(queryInfo);
         return tabs.filter(i => !filterTabs.includes(i.id));
     }
 
     let listeners = [];
-    function addListener(event, listener) {
+    function addListener(event, listener, ...extraParams) {
         listeners.push({
             event: event,
             listener: listener,
         });
         // eslint-disable-next-line no-restricted-properties
-        event.addListener(listener);
+        event.addListener(listener, ...extraParams);
     }
 
     function removeListeners() {
@@ -257,6 +262,20 @@ async function main() {
                 updateWindow(attachInfo.newWindowId);
             });
 
+            if (excludeHiddenTabs) {
+                if (useOnUpdatedExtra) {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        updateWindow(tab.windowId);
+                    }, {properties: ["hidden"]});
+                } else {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        if ("hidden" in changeInfo) {
+                            updateWindow(tab.windowId);
+                        }
+                    });
+                }
+            }
+
             updateWindows();
         } else {
             addListener(browser.tabs.onActivated, activeInfo => {
@@ -282,6 +301,20 @@ async function main() {
                 }
             });
 
+            if (excludeHiddenTabs) {
+                if (useOnUpdatedExtra) {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        updateActive(tab.windowId);
+                    }, {properties: ["hidden"]});
+                } else {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        if ("hidden" in changeInfo) {
+                            updateActive(tab.windowId);
+                        }
+                    });
+                }
+            }
+
             updateActives();
         }
     } else if (options.scope === "both") {
@@ -296,6 +329,20 @@ async function main() {
                 filterTabs.push(tabId);
                 updateBoth();
             });
+
+            if (excludeHiddenTabs) {
+                if (useOnUpdatedExtra) {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        updateBoth();
+                    }, {properties: ["hidden"]});
+                } else {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        if ("hidden" in changeInfo) {
+                            updateBoth();
+                        }
+                    });
+                }
+            }
 
             updateBoth();
         } else {
@@ -316,6 +363,20 @@ async function main() {
                 }
             });
 
+            if (excludeHiddenTabs) {
+                if (useOnUpdatedExtra) {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        updateBothTab();
+                    }, {properties: ["hidden"]});
+                } else {
+                    addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                        if ("hidden" in changeInfo) {
+                            updateBothTab();
+                        }
+                    });
+                }
+            }
+
             updateBothTab();
         }
     } else if (options.scope === "global") {
@@ -327,6 +388,20 @@ async function main() {
             filterTabs = [];
             updateGlobal();
         });
+
+        if (excludeHiddenTabs) {
+            if (useOnUpdatedExtra) {
+                addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                    updateGlobal();
+                }, {properties: ["hidden"]});
+            } else {
+                addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+                    if ("hidden" in changeInfo) {
+                        updateGlobal();
+                    }
+                });
+            }
+        }
 
         updateGlobal();
     } else {
