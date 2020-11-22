@@ -1,6 +1,8 @@
 import { getOptions, onError } from "./shared.js";
 
 function restoreOptions(opt) {
+    document.getElementById("include_hidden_tabs").checked = opt.includeHiddenTabs;
+
     switch (opt.scope) {
         case "window":
             document.getElementById("scope_window").checked = true;
@@ -96,6 +98,10 @@ function fontDialogApply() {
 }
 
 async function initSaveEvents() {
+    document.getElementById("include_hidden_tabs").addEventListener("input", e => {
+        browser.storage.local.set({"includeHiddenTabs": e.target.checked});
+    });
+
     document.querySelectorAll("input[name='scope']").forEach(element => {
         element.addEventListener("input", e => {
             if (!e.target.checked) return;

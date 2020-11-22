@@ -1,6 +1,8 @@
 export { defaultOptions, getOptions, onError };
 
 var defaultOptions = {
+    "includeHiddenTabs": false,
+
     "scope": "window", // "global" | "window" | "both"
     "displayMode": "icon", // "icon" | "badge"
 

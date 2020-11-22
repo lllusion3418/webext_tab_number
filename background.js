@@ -19,19 +19,22 @@ async function main() {
      * may even result in the count being off by more than one
      */
     let filterTabs = [];
-    async function tabsQueryFilter(queryInfo) {
+    async function tabsQueryFilter(queryInfo, includeHidden = options.includeHiddenTabs) {
+        if (!includeHidden) {
+            queryInfo = {hidden: false, ...queryInfo};
+        }
         const tabs = await browser.tabs.query(queryInfo);
         return tabs.filter(i => !filterTabs.includes(i.id));
     }
 
     let listeners = [];
-    function addListener(event, listener) {
+    function addListener(event, listener, ...extraParams) {
         listeners.push({
             event: event,
             listener: listener,
         });
         // eslint-disable-next-line no-restricted-properties
-        event.addListener(listener);
+        event.addListener(listener, ...extraParams);
     }
 
     function removeListeners() {
@@ -45,6 +48,10 @@ async function main() {
         let reinitializeCounters = false;
         for (let i in changes) {
             switch (i) {
+                case "includeHiddenTabs":
+                    options[i] = changes[i].newValue;
+                    reinitializeCounters = true;
+                    break;
                 case "iconDimension":
                 case "iconFont":
                     options[i] = changes[i].newValue;
@@ -197,6 +204,9 @@ async function main() {
         addListener(browser.tabs.onAttached, (_, attachInfo) => {
             updateWindow(attachInfo.newWindowId);
         });
+        addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+            updateWindow(tab.windowId);
+        }, {properties: ["hidden"]});
 
         updateWindows();
     } else if (options.scope === "both") {
@@ -210,6 +220,9 @@ async function main() {
             filterTabs.push(tabId);
             updateBoth();
         });
+        addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+            updateBoth();
+        }, {properties: ["hidden"]});
 
         updateBoth();
     } else if (options.scope === "global") {
@@ -221,6 +234,9 @@ async function main() {
             filterTabs = [];
             updateGlobal();
         });
+        addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+            updateGlobal();
+        }, {properties: ["hidden"]});
 
         updateGlobal();
     } else {
