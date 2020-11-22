@@ -5,18 +5,17 @@
     "description": "Shows number of open tabs. DEV",
     "browser_specific_settings": {
         "gecko": {
-            "strict_min_version": "52.0"
+            "strict_min_version": "62.0"
         }
     },
     "permissions": [
-        "tabs",
         "storage"
     ],
     "browser_action": {
         "default_icon": "icons/ic_tab_black_24px.svg"
     },
     "background": {
-        "scripts": ["shared.js", "icondrawer.js", "migrate.js", "background.js"]
+        "page": "background.html"
     },
     "options_ui": {
         "page": "options.html",

@@ -1,5 +1,5 @@
-/* exported migrate */
-"use strict";
+export { migrate };
+
 async function migrateMargin() {
     const cfg = await browser.storage.local.get("iconFontMultiplier");
     if ("iconFontMultiplier" in cfg) {

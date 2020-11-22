@@ -1,5 +1,4 @@
-/* globals getOptions, onError, supportsTabReset */
-"use strict";
+import { getOptions, onError } from "./shared.js";
 
 function restoreOptions(opt) {
     switch (opt.scope) {
@@ -97,46 +96,16 @@ function fontDialogApply() {
 }
 
 async function initSaveEvents() {
-    const noReload = await supportsTabReset();
-    const reloadMsg =
-        "Extension reload necessary due to browser version.\n" +
-        "Reload Page (F5) if formatting is messed up";
     document.querySelectorAll("input[name='scope']").forEach(element => {
         element.addEventListener("input", e => {
             if (!e.target.checked) return;
-            let reload = false;
-            if ((!noReload) && e.target.value === "global") {
-                const ok = window.confirm(reloadMsg);
-                if (!ok) {
-                    restoreSavedOptions();
-                    return;
-                }
-                reload = true;
-            }
-            let p = browser.storage.local.set({"scope": e.target.value});
-            if (reload) {
-                p.then(() => browser.runtime.reload());
-            }
+            browser.storage.local.set({"scope": e.target.value});
         });
     });
     document.querySelectorAll("input[name='displayMode']").forEach(element => {
         element.addEventListener("input", e => {
             if (!e.target.checked) return;
-            let reload = false;
-            if (!noReload) {
-                const ok = window.confirm(
-                    reloadMsg,
-                );
-                if (!ok) {
-                    restoreSavedOptions();
-                    return;
-                }
-                reload = true;
-            }
-            let p = browser.storage.local.set({"displayMode": e.target.value});
-            if (reload) {
-                p.then(() => browser.runtime.reload());
-            }
+            browser.storage.local.set({"displayMode": e.target.value});
         });
     });
     document.getElementById("badgeBg").addEventListener("input", e => {
