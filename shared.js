@@ -1,5 +1,4 @@
-/* exported defaultOptions, getOptions, onError */
-"use strict";
+export { defaultOptions, getOptions, onError };
 
 var defaultOptions = {
     "scope": "window", // "global" | "window" | "both"

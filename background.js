@@ -1,5 +1,7 @@
-/* globals getOptions, onError, IconDrawer, migrate */
-"use strict";
+import { getOptions, onError } from "./shared.js";
+import { migrate } from "./migrate.js";
+import { IconDrawer } from "./icondrawer.js";
+
 async function main() {
     /* eslint no-restricted-properties: ["error", {
         "property": "addListener",

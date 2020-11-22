@@ -1,5 +1,4 @@
-/* globals getOptions, onError */
-"use strict";
+import { getOptions, onError } from "./shared.js";
 
 function restoreOptions(opt) {
     switch (opt.scope) {

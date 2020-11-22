@@ -1,5 +1,4 @@
-/* exported IconDrawer, supportsActualBoundingBoxes */
-"use strict";
+export { IconDrawer, supportsActualBoundingBoxes };
 
 /*
  * Tests whether the TextMetrics.actualBoundingBoxAscent and
