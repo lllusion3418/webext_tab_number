@@ -204,7 +204,7 @@ async function main() {
         addListener(browser.tabs.onAttached, (_, attachInfo) => {
             updateWindow(attachInfo.newWindowId);
         });
-        addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+        addListener(browser.tabs.onUpdated, (_tabId, _changeInfo, tab) => {
             updateWindow(tab.windowId);
         }, {properties: ["hidden"]});
 
@@ -220,7 +220,7 @@ async function main() {
             filterTabs.push(tabId);
             updateBoth();
         });
-        addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+        addListener(browser.tabs.onUpdated, () => {
             updateBoth();
         }, {properties: ["hidden"]});
 
@@ -234,7 +234,7 @@ async function main() {
             filterTabs = [];
             updateGlobal();
         });
-        addListener(browser.tabs.onUpdated, (tabId, changeInfo, tab) => {
+        addListener(browser.tabs.onUpdated, () => {
             updateGlobal();
         }, {properties: ["hidden"]});
 

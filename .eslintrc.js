@@ -34,6 +34,10 @@ module.exports = {
         ],
         "no-unused-vars": [
             "error",
+            {
+                "args": "all",
+                "argsIgnorePattern": "^_",
+            }
         ],
         "keyword-spacing": [
             "error",

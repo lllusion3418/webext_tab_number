@@ -139,7 +139,7 @@ document.getElementById("openFontDialog").addEventListener("click", openFontDial
 document.getElementById("fontDialogCancel").addEventListener("click", closeFontDialog);
 document.getElementById("fontDialogApply").addEventListener("click", fontDialogApply);
 
-document.getElementById("settings-new-page").href = browser.runtime.getURL("options.html")
+document.getElementById("settings-new-page").href = browser.runtime.getURL("options.html");
 
 restoreSavedOptions();
 initSaveEvents();
